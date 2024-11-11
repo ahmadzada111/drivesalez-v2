@@ -1,3 +1,10 @@
+using DriveSalez.Application;
+using DriveSalez.Persistence;
+using DriveSalez.Presentation;
+using DriveSalez.Utilities;
+using DriveSalez.WebApi.ExceptionHandler;
+using DriveSalez.WebApi.Extensions;
+
 namespace DriveSalez.WebApi;
 
 public class Program
@@ -6,24 +13,37 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.ConfigureSettings();
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
-
+        builder.Services.AddSwagger();
+        builder.Services.AddApiVersioningWithExplorer();
+        builder.Services.AddIdentityServices(builder.Configuration);
+        builder.Services.AddAuthenticationWithJwt(builder.Configuration);
+        builder.Services.AddHttpClient();
+        builder.Services.AddAuthorizationPolicies();
+        builder.Services.AddCorsPolicy();
+        builder.Services.AddLogging();
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        builder.Services.AddApplicationLayer();
+        builder.Services.AddPresentationLayer();
+        builder.Services.AddPersistenceLayer(builder.Configuration);
+        
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(x => x.EnablePersistAuthorization());
         }
 
+        app.UseHsts();
         app.UseHttpsRedirection();
-
+        app.UseCors("DriveSalezCorsPolicy");
+        app.UseAuthentication();
         app.UseAuthorization();
-
         app.MapControllers();
-
         app.Run();
     }
 }

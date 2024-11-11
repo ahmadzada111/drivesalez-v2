@@ -11,7 +11,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
+      <ProjectReference Include="..\DriveSalez.Application.Contracts\DriveSalez.Application.Contracts.csproj" />
+      <ProjectReference Include="..\DriveSalez.Application\DriveSalez.Application.csproj" />
+      <ProjectReference Include="..\DriveSalez.Domain\DriveSalez.Domain.csproj" />
+      <ProjectReference Include="..\DriveSalez.Dto\DriveSalez.Dto.csproj" />
     </ItemGroup>
-    
+
+    <ItemGroup>
+        <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
+    </ItemGroup>
 </Project>

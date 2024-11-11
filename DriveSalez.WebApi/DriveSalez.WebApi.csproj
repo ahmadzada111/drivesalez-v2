@@ -4,14 +4,26 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>3d722257-8c46-4778-9598-77e9acae546b</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
+        <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
+        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
+      <ProjectReference Include="..\DriveSalez.Application\DriveSalez.Application.csproj" />
+      <ProjectReference Include="..\DriveSalez.Domain\DriveSalez.Domain.csproj" />
+      <ProjectReference Include="..\DriveSalez.Persistence\DriveSalez.Persistence.csproj" />
+      <ProjectReference Include="..\DriveSalez.Presentation\DriveSalez.Presentation.csproj" />
+      <ProjectReference Include="..\DriveSalez.Utilities\DriveSalez.Utilities.csproj" />
     </ItemGroup>
 
 </Project>
