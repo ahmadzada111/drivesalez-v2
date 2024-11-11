@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUserFactory<SignUpDefaultAccountRequest>, DefaultUserFactory>();
         services.AddScoped<IUserFactory<SignUpBusinessAccountRequest>, BusinessUserFactory>();
+        services.AddScoped<UserFactorySelector>();
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         return services;

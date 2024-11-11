@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace DriveSalez.Application.Abstractions;
 
-public class BusinessUserFactory(IPayPalService payPalService, UserManager<ApplicationUser> userManager)
+public class BusinessUserFactory(UserManager<ApplicationUser> userManager)
     : IUserFactory<SignUpBusinessAccountRequest>
 {
     public User CreateUser(SignUpBusinessAccountRequest signUpRequest)
