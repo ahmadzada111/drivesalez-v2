@@ -4,25 +4,40 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DriveSalez.Persistence.Repositories;
 
-public class UnitOfWork : IUnitOfWork
+public sealed class UnitOfWork : IUnitOfWork
 {
-    private bool _disposed = false;
+    private bool _disposed;
     private readonly ApplicationDbContext _context;
     private IDbContextTransaction? _currentTransaction;
     
-    public IUserRepository UserRepository { get; }
-    public IOneTimePurchaseRepository OneTimePurchaseRepository { get; }
-    public IPaymentRepository PaymentRepository { get; }
-    public ISubscriptionRepository SubscriptionRepository { get; }
-    public IUserLimitRepository UserLimitRepository { get; }
+    private readonly Lazy<IUserRepository> _userRepository;
+    private readonly Lazy<IOneTimePurchaseRepository> _oneTimePurchaseRepository;
+    private readonly Lazy<IPaymentRepository> _paymentRepository;
+    private readonly Lazy<ISubscriptionRepository> _subscriptionRepository;
+    private readonly Lazy<IUserLimitRepository> _userLimitRepository;
+    
+    public IUserRepository UserRepository => _userRepository.Value;
+    public IOneTimePurchaseRepository OneTimePurchaseRepository => _oneTimePurchaseRepository.Value;
+    public IPaymentRepository PaymentRepository => _paymentRepository.Value;
+    public ISubscriptionRepository SubscriptionRepository => _subscriptionRepository.Value;
+    public IUserLimitRepository UserLimitRepository => _userLimitRepository.Value;
 
-    public UnitOfWork(ApplicationDbContext context)
+    public UnitOfWork(ApplicationDbContext context, Lazy<IUserRepository> userRepository1, 
+        Lazy<IOneTimePurchaseRepository> oneTimePurchaseRepository, Lazy<IPaymentRepository> paymentRepository, 
+        Lazy<ISubscriptionRepository> subscriptionRepository, Lazy<IUserLimitRepository> userLimitRepository)
     {
         _context = context;
+        _userRepository = userRepository1;
+        _oneTimePurchaseRepository = oneTimePurchaseRepository;
+        _paymentRepository = paymentRepository;
+        _subscriptionRepository = subscriptionRepository;
+        _userLimitRepository = userLimitRepository;
     }
     
     public async Task BeginTransactionAsync()
     {
+        if (_currentTransaction != null) 
+            throw new InvalidOperationException("A transaction has already been started.");
         _currentTransaction = await _context.Database.BeginTransactionAsync();
     }
 
@@ -55,7 +70,7 @@ public class UnitOfWork : IUnitOfWork
         GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!_disposed)
         {
@@ -77,8 +92,13 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    protected virtual async ValueTask DisposeAsyncCore()
+    private async ValueTask DisposeAsyncCore()
     { 
         await _context.DisposeAsync();
+    }
+
+    ~UnitOfWork()
+    {
+        Dispose(false);
     }
 }
