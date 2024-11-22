@@ -1,7 +1,7 @@
 using DriveSalez.Application;
+using DriveSalez.Infrastructure.Services;
 using DriveSalez.Persistence;
 using DriveSalez.Presentation;
-using DriveSalez.Utilities;
 using DriveSalez.WebApi.ExceptionHandler;
 using DriveSalez.WebApi.Extensions;
 
@@ -20,14 +20,15 @@ public class Program
         builder.Services.AddApiVersioningWithExplorer();
         builder.Services.AddIdentityServices(builder.Configuration);
         builder.Services.AddAuthenticationWithJwt(builder.Configuration);
-        builder.Services.AddHttpClient();
         builder.Services.AddAuthorizationPolicies();
+        builder.Services.AddHttpClient();
         builder.Services.AddCorsPolicy();
         builder.Services.AddLogging();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddApplicationLayer();
         builder.Services.AddPresentationLayer();
+        builder.Services.AddInfrastructureServiceLayer(builder.Configuration);
         builder.Services.AddPersistenceLayer(builder.Configuration);
         
         var app = builder.Build();

@@ -8,11 +8,19 @@ namespace DriveSalez.Persistence.DbContext;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>(options)
 {
-    public DbSet<BaseUser> BaseUsers { get; set; }
+    public virtual DbSet<BaseUser> BaseUsers { get; set; }
     
-    public DbSet<Image> ImageUrls { get; set; }
+    public virtual DbSet<Image> ImageUrls { get; set; }
     
-    public DbSet<WorkHour> WorkHours { get; set; }
+    public virtual DbSet<WorkHour> WorkHours { get; set; }
     
-    public DbSet<Announcement> Announcements { get; set; }
+    public virtual DbSet<Announcement> Announcements { get; set; }
+    
+    public virtual DbSet<Payment> Payments { get; set; }
+ 
+    public virtual DbSet<Subscription> Subscriptions { get; set; }
+    
+    public virtual DbSet<UserLimit> UserLimits { get; set; }
+    
+    public virtual DbSet<OneTimePurchase> OneTimePurchases { get; set; }
 }

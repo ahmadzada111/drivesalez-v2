@@ -8,4 +8,5 @@ public record SignUpBusinessAccountRequest(
     string Email, 
     string Password,
     string ConfirmPassword,
-    List<string> ContactNumbers) : ISignUpRequest;
+    List<string> ContactNumbers,
+    List<WorkHourRequest> WorkHours) : ISignUpRequest;

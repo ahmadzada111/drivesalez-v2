@@ -10,9 +10,11 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPresentationLayer(this IServiceCollection services)
     {
+        services.AddScoped<AuthorizedUserFilter>();
+        
         services.AddControllers(options =>
             {
-                options.Filters.Add<AuthorizedUserFilter>();
+                // options.Filters.Add<AuthorizedUserFilter>();
                 options.Filters.Add<LoggingFilter>();
             })
             .AddJsonOptions(options =>

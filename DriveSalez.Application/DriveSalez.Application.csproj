@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -10,12 +10,13 @@
       <ProjectReference Include="..\DriveSalez.Application.Contracts\DriveSalez.Application.Contracts.csproj" />
       <ProjectReference Include="..\DriveSalez.Domain\DriveSalez.Domain.csproj" />
       <ProjectReference Include="..\DriveSalez.Dto\DriveSalez.Dto.csproj" />
+      <ProjectReference Include="..\DriveSalez.Repository.Contracts\DriveSalez.Repository.Contracts.csproj" />
       <ProjectReference Include="..\DriveSalez.Utilities\DriveSalez.Utilities.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
     </ItemGroup>
 
 </Project>

@@ -1,4 +1,3 @@
-using DriveSalez.Shared.Dto.Dto;
 using DriveSalez.Shared.Dto.Dto.User;
 using FluentValidation;
 

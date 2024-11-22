@@ -1,4 +1,3 @@
-using DriveSalez.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace DriveSalez.Domain.IdentityEntities;

@@ -1,13 +1,10 @@
 namespace DriveSalez.Utilities.Settings;
 
-public class PayPalSettings(
-    string secret, 
-    string clientId, 
-    string mode)
+public class PayPalSettings
 {
-    public string Secret { get; } = secret;
+    public required string Secret { get; set; } 
 
-    public string ClientId { get; } = clientId;
+    public required string ClientId { get; set; } 
 
-    public string Mode { get; } = mode;
+    public required string Mode { get; set; } 
 }

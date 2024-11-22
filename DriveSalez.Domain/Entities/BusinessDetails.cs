@@ -12,7 +12,7 @@ public class BusinessDetails
     
     public string? BusinessName { get; set; }
 
-    public ICollection<PhoneNumber> PhoneNumbers { get; set; } = [];
+    public ICollection<ContactPhoneNumber> PhoneNumbers { get; set; } = [];
     
     public ProfileImage? ProfilePhotoUrl { get; set; } 
 

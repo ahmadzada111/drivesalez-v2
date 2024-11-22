@@ -1,11 +1,11 @@
+using System.Globalization;
 using DriveSalez.Application.Contracts.ServiceContracts;
-using DriveSalez.Shared.Dto.Dto;
+using DriveSalez.Shared.Dto.Dto.Payment;
 using DriveSalez.Utilities.Settings;
 using DriveSalez.Utilities.Utilities;
 using Microsoft.Extensions.Options;
 using PayPalCheckoutSdk.Core;
 using PayPalCheckoutSdk.Orders;
-using PayPalHttp;
 
 namespace DriveSalez.Infrastructure.Services.Services;
 
@@ -23,7 +23,7 @@ public class PayPalService : IPayPalService
         _client = new PayPalHttpClient(environment);
     }
 
-    public async Task<Result<string>> ProcessPayment(PaymentDetails paymentDetails, decimal amount, string currency = "USD")
+    public async Task<Result<PaymentResponse>> ProcessPaymentAsync(PaymentDetails paymentDetails, decimal amount, string currency = "USD")
     {
         var orderRequest = new OrderRequest
         {
@@ -34,76 +34,44 @@ public class PayPalService : IPayPalService
                 CancelUrl = paymentDetails.CancelUrl,
                 BrandName = "DriveSalez",
                 LandingPage = "BILLING",
-                UserAction = "PAY_NOW"
+                UserAction = "PAY_NOW",
+                ShippingPreference = "NO_SHIPPING"
             },
-            PurchaseUnits = new List<PurchaseUnitRequest>
-            {
+            PurchaseUnits =
+            [
                 new PurchaseUnitRequest
                 {
                     AmountWithBreakdown = new AmountWithBreakdown
                     {
                         CurrencyCode = currency,
-                        Value = amount.ToString("F2")
-                    },
-                    Description = "Business Account Registration Fee"
+                        Value = amount.ToString("F2", CultureInfo.InvariantCulture)
+                    }
                 }
-            }
+            ]
         };
 
         var request = new OrdersCreateRequest();
         request.Prefer("return=representation");
         request.RequestBody(orderRequest);
 
-        try
-        {
-            var response = await _client.Execute(request);
-            var result = response.Result<Order>();
+        var response = await _client.Execute(request);
+        var result = response.Result<Order>();
+        var approvalLink = result.Links.FirstOrDefault(link => link.Rel.Equals("approve", StringComparison.OrdinalIgnoreCase))?.Href;
 
-            var approvalLink = result.Links.FirstOrDefault(link => link.Rel.Equals("approve", StringComparison.OrdinalIgnoreCase))?.Href;
-
-            if (!string.IsNullOrEmpty(approvalLink))
-            {
-                return Result<string>.Success(approvalLink);
-            }
-
-            return Result<string>.Failure(new Error("Payment Error", "Approval URL not found."));
-        }
-        catch (HttpException httpEx)
-        {
-            var errorMessage = httpEx.Message;
-            return Result<string>.Failure(new Error("Payment Error", errorMessage));
-        }
-        catch (Exception ex)
-        {
-            return Result<string>.Failure(new Error("Payment Exception", ex.Message));
-        }
+        if (!string.IsNullOrEmpty(approvalLink)) return Result<PaymentResponse>.Success(new PaymentResponse(result.Id, approvalLink));
+        return Result<PaymentResponse>.Failure(new Error("Payment Error", "Approval URL not found."));
     }
 
-    public async Task<Result<bool>> CapturePayment(string orderId)
+    public async Task<Result<bool>> CapturePaymentAsync(string orderId)
     {
         var request = new OrdersCaptureRequest(orderId);
         request.RequestBody(new OrderActionRequest());
 
-        try
-        {
-            var response = await _client.Execute(request);
-            var result = response.Result<Order>();
+        var response = await _client.Execute(request);
+        var result = response.Result<Order>();
 
-            if (result.Status.Equals("COMPLETED", StringComparison.OrdinalIgnoreCase))
-            {
-                return Result<bool>.Success(true);
-            }
-
-            return Result<bool>.Failure(new Error("Payment Not Completed", $"Payment status: {result.Status}"));
-        }
-        catch (HttpException httpEx)
-        {
-            var errorMessage = httpEx.Message;
-            return Result<bool>.Failure(new Error("Payment Capture Error", errorMessage));
-        }
-        catch (Exception ex)
-        {
-            return Result<bool>.Failure(new Error("Payment Capture Exception", ex.Message));
-        }
+        return result.Status.Equals("COMPLETED", StringComparison.OrdinalIgnoreCase)
+            ? Result<bool>.Success(true)
+            : Result<bool>.Failure(new Error("Payment Not Completed", $"Payment status: {result.Status}"));
     }
 }

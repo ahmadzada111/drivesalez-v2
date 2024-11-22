@@ -2,7 +2,7 @@ using DriveSalez.Domain.IdentityEntities;
 
 namespace DriveSalez.Domain.Entities;
 
-public class PhoneNumber
+public class ContactPhoneNumber
 {
     public int Id { get; set; }
 

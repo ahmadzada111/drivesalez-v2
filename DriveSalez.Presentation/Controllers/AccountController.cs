@@ -4,6 +4,8 @@ using DriveSalez.Domain.Enums;
 using DriveSalez.Shared.Dto.Dto.Email;
 using DriveSalez.Shared.Dto.Dto.User;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DriveSalez.Presentation.Controllers;
@@ -11,7 +13,7 @@ namespace DriveSalez.Presentation.Controllers;
 [ApiController]
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/accounts")]
-[ServiceFilter(typeof(LoggingFilter))]
+[AllowAnonymous]
 public class AccountController(
     IUserService userService, 
     IValidator<SignUpDefaultAccountRequest> signUpDefaultValidator,
@@ -29,17 +31,68 @@ public class AccountController(
             return Problem(message);
         }
 
-        var result = await userService.CreateUser(request, UserType.Default);
+        var result = await userService.CreateUserAsync(request, UserType.Default);
         if (!result.IsSuccess) return BadRequest(result.Error);
-
-        var user = await userService.FindByEmail(request.Email);
-        if (user.Value is null) return BadRequest(user.Error);
         
-        var token = await userService.GenerateEmailConfirmationToken(user.Value);
+        return CreatedAtAction(nameof(SignUpDefaultAccount), "User registered successfully.");
+    }
+    
+    [HttpPost("signup/business")]
+    public async Task<ActionResult> SignUpBusinessAccount([FromBody] SignUpBusinessAccountRequest request,
+        IFormFile profilePhoto, IFormFile backgroundPhoto)
+    {
+        var validator = await signUpBusinessValidator.ValidateAsync(request);
+        if (!validator.IsValid)
+        {
+            var message = string.Join(" | ", validator.Errors.Select(x => x.ErrorMessage));
+            return Problem(message);
+        }
+
+        var result = await userService.CreateUserAsync(request, UserType.Business);
+        if (!result.IsSuccess) return BadRequest(result.Error);
+        
+        return CreatedAtAction(nameof(SignUpBusinessAccount), "User registered successfully.");
+    }
+    
+    [HttpPost("signup/complete")]
+    public async Task<ActionResult> CompleteBusinessAccountSignUp([FromBody] Guid pendingUserId, string orderId)
+    {
+        // var validator = await signUpBusinessValidator.ValidateAsync(request);
+        // if (!validator.IsValid)
+        // {
+        //     var message = string.Join(" | ", validator.Errors.Select(x => x.ErrorMessage));
+        //     return Problem(message);
+        // }
+
+        return Ok();
+    }
+    
+    [HttpPost("signin")]
+    public Task<ActionResult> SignIn()
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpPut("logout")]
+    public async Task<ActionResult> LogOut()
+    {
+        await userService.LogOutAsync();
+        return NoContent();
+    }
+
+    [HttpGet("{userId}/email")]
+    public async Task<ActionResult> RequestConfirmEmail([FromRoute] Guid userId)
+    {
+        var user = await userService.FindIdentityUserByIdAsync(userId);
+        if (!user.IsSuccess) return BadRequest(user.Error);
+        
+        var token = await userService.GenerateEmailConfirmationTokenAsync(user.Value!);
+        if (!token.IsSuccess) return BadRequest(token.Error);
+        
         var confirmationLink = Url.Action(
             nameof(ConfirmEmail), 
             "Account", 
-            new { userId = user.Value.Id, token }, 
+            new { userId = user.Value!.Id, token }, 
             Request.Scheme);
 
         await emailService.SendEmailAsync(new EmailRequest
@@ -49,35 +102,9 @@ public class AccountController(
             $"Please confirm your account by clicking this link: {confirmationLink}"
         ));
         
-        return CreatedAtAction(nameof(SignUpDefaultAccount), new { userId = user.Value.Id }, "User registered successfully.");
-    }
-    
-    [HttpPost("signup/business")]
-    public async Task<ActionResult> SignUpBusinessAccount([FromBody] SignUpBusinessAccountRequest request)
-    {
-        var validator = await signUpBusinessValidator.ValidateAsync(request);
-        if (!validator.IsValid)
-        {
-            var message = string.Join(" | ", validator.Errors.Select(x => x.ErrorMessage));
-            return Problem(message);
-        }
-
-        return Ok();
-    }
-    
-    [HttpPost("signup")]
-    public Task<ActionResult> SignIn()
-    {
-        throw new NotImplementedException();
+        return Ok("Email confirmation link has been sent.");
     }
 
-    [HttpPut("logout")]
-    public async Task<ActionResult> LogOut()
-    {
-        await userService.LogOut();
-        return NoContent();
-    }
-    
     [HttpPut("{userId}/email")]
     public async Task<ActionResult> ConfirmEmail([FromRoute] Guid userId, [FromQuery] string token)
     {
@@ -90,16 +117,12 @@ public class AccountController(
             return Problem(errorMessage);
         }
 
-        var user = await userService.FindById(userId);
-        if(user.Value is null) return BadRequest(user.Error);
+        var user = await userService.FindIdentityUserByIdAsync(userId);
+        if(!user.IsSuccess) return BadRequest(user.Error);
         
-        var result = await userService.ConfirmEmail(user.Value, request.Token);
+        var result = await userService.ConfirmEmailAsync(user.Value!, request.Token);
+        if (result.IsSuccess) return Ok("Email confirmed successfully.");
         
-        if (result.IsSuccess)
-        {
-            return Ok("Email confirmed successfully.");
-        }
-
         return BadRequest(result.Error);
     }
 }

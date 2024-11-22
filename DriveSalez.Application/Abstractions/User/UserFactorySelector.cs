@@ -1,7 +1,6 @@
-using DriveSalez.Shared.Dto.Dto.User;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DriveSalez.Application.Abstractions;
+namespace DriveSalez.Application.Abstractions.User;
 
 public class UserFactorySelector(IServiceProvider serviceProvider)
 {
@@ -10,7 +9,7 @@ public class UserFactorySelector(IServiceProvider serviceProvider)
         var factory = serviceProvider.GetService<IUserFactory<TSignUpRequest>>();
         if (factory == null)
         {
-            throw new NotImplementedException($"No factory implemented for sign-up request type {typeof(TSignUpRequest).Name}");
+            throw new NotImplementedException($"No factory implemented for sign-up request type {nameof(TSignUpRequest)}");
         }
         return factory;
     }

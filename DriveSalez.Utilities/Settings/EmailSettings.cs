@@ -1,19 +1,14 @@
 namespace DriveSalez.Utilities.Settings;
 
-public class EmailSettings(
-    string companyEmail, 
-    string senderName,
-    string emailKey,
-    string smtpServer,
-    int port)
+public class EmailSettings
 {
-    public string CompanyEmail { get; } = companyEmail;
+    public required string CompanyEmail { get; set; }
     
-    public string SenderName { get; } = senderName;
+    public required string SenderName { get; set; }
     
-    public string EmailKey { get; } = emailKey;
+    public required string EmailKey { get; set; }
     
-    public string SmtpServer { get; } = smtpServer;
+    public required string SmtpServer { get; set; } 
     
-    public int Port { get; } = port;
+    public required int Port { get; set; } 
 }

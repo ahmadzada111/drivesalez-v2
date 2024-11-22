@@ -13,15 +13,15 @@ public class AuthorizedUserFilter(UserManager<ApplicationUser> userManager, IHtt
     {
         var httpContext = contextAccessor.HttpContext 
                           ?? throw new NullReferenceException("HttpContext is null");
-
+        
         var user = await userManager.GetUserAsync(httpContext.User);
-
+        
         if (user == null)
         {
             context.Result = new UnauthorizedResult();
             return;
         }
-
+        
         httpContext.Items["AuthorizedUser"] = user;
 
         await next();

@@ -1,16 +1,12 @@
 ﻿namespace DriveSalez.Utilities.Settings;
 
-public class JwtSettings(
-    string secret, 
-    string issuer, 
-    string audience, 
-    int expiration)
+public class JwtSettings
 {
-    public string Secret { get; } = secret;
+    public required string Secret { get; set; } 
     
-    public string Issuer { get; } = issuer;
+    public required string Issuer { get; set; } 
     
-    public string Audience { get; } = audience;
+    public required string Audience { get; set; } 
     
-    public int Expiration { get; } = expiration;
+    public required int Expiration { get; set; } 
 }

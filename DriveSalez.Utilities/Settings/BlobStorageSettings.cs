@@ -1,8 +1,8 @@
 namespace DriveSalez.Utilities.Settings;
 
-public class BlobStorageSettings(string connectionString, string containerName)
+public class BlobStorageSettings
 {
-    public string ConnectionString { get; } = connectionString;
+    public required string ConnectionString { get; set; } 
     
-    public string ContainerName { get; } = containerName;
+    public required string ContainerName { get; set; }
 }
