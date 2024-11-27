@@ -6,5 +6,5 @@ namespace DriveSalez.Application.Contracts.ServiceContracts;
 
 public interface IOneTimePurchaseService
 {
-    public Task<Result<GetOneTimePurchaseDto>> GetByIdAsync(int id);
+    public Task<Result<GetOneTimePurchaseRequest>> GetByIdAsync(int id);
 }

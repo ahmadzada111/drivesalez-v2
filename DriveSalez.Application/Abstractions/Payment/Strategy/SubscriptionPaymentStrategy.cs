@@ -8,10 +8,10 @@ public class SubscriptionPaymentStrategy(IUnitOfWork unitOfWork) : IPaymentStrat
 {
     public PurchaseType PaymentType => PurchaseType.Subscription;
     
-    public async Task<GetServiceDto> GetService(int serviceId)
+    public async Task<GetServiceRequest> GetService(int serviceId)
     {
         var result = await unitOfWork.SubscriptionRepository.GetByIdAsync(serviceId);
-        if (result is not null) return new GetServiceDto(result.Id, result.Name, result.Price);
+        if (result is not null) return new GetServiceRequest(result.Id, result.Name, result.Price);
         throw new KeyNotFoundException("Service not found");
     }
 

@@ -8,10 +8,10 @@ public class OneTimePurchasePaymentStrategy(IUnitOfWork unitOfWork) : IPaymentSt
 {
     public PurchaseType PaymentType => PurchaseType.OneTimePurchase;
     
-    public async Task<GetServiceDto> GetService(int serviceId)
+    public async Task<GetServiceRequest> GetService(int serviceId)
     {
         var result = await unitOfWork.OneTimePurchaseRepository.GetByIdAsync(serviceId);
-        if (result is not null) return new GetServiceDto(result.Id, result.Name, result.Price);
+        if (result is not null) return new GetServiceRequest(result.Id, result.Name, result.Price);
         throw new KeyNotFoundException("Service not found");
     }
 

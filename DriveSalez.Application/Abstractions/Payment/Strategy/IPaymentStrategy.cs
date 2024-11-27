@@ -6,6 +6,6 @@ namespace DriveSalez.Application.Abstractions.Payment.Strategy;
 public interface IPaymentStrategy
 {
     PurchaseType PaymentType { get; }
-    Task<GetServiceDto> GetService(int serviceId);
+    Task<GetServiceRequest> GetService(int serviceId);
     Task HandlePostPaymentAsync(int serviceId, Guid userId);
 }
