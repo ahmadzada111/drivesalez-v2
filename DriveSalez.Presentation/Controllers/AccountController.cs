@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using DriveSalez.Application.Contracts.ServiceContracts;
 using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.IdentityEntities;
 using DriveSalez.Shared.Dto.Dto.Email;
 using DriveSalez.Shared.Dto.Dto.User;
 using FluentValidation;
@@ -19,7 +20,8 @@ public class AccountController(
     IValidator<SignUpDefaultAccountRequest> signUpDefaultValidator,
     IValidator<SignUpBusinessAccountRequest> signUpBusinessValidator,
     IValidator<ConfirmEmailRequest> emailConfirmValidator,
-    IEmailService emailService) : Controller
+    IEmailService emailService,
+    IPaymentService paymentService) : Controller
 {
     [HttpPost("signup/default")]
     public async Task<ActionResult> SignUpDefaultAccount([FromBody] SignUpDefaultAccountRequest request)
@@ -57,13 +59,13 @@ public class AccountController(
     [HttpPost("signup/complete")]
     public async Task<ActionResult> CompleteBusinessAccountSignUp([FromBody] Guid pendingUserId, string orderId)
     {
-        // var validator = await signUpBusinessValidator.ValidateAsync(request);
-        // if (!validator.IsValid)
-        // {
-        //     var message = string.Join(" | ", validator.Errors.Select(x => x.ErrorMessage));
-        //     return Problem(message);
-        // }
+        var user = await userService.FindBaseUserByIdAsync<User>(pendingUserId);
+        if (!user.IsSuccess) return BadRequest();
+        
+        var payment = await paymentService.GetPaymentByOrderIdAsync(orderId);
+        if (!payment.IsSuccess) return BadRequest();
 
+        
         return Ok();
     }
     

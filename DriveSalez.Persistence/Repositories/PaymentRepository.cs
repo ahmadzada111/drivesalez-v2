@@ -14,9 +14,8 @@ internal class PaymentRepository(ApplicationDbContext context) : IPaymentReposit
         return entry.Entity;
     }
 
-    public Payment Update(Payment payment, PaymentStatus status)
+    public Payment Update(Payment payment)
     {
-        payment.PaymentStatus = status;
         return context.Payments.Update(payment).Entity;
     }
 

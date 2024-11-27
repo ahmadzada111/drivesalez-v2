@@ -29,11 +29,15 @@ public class PaymentController(
         if (!parseToEnum) return BadRequest();
         
         var paymentStrategy = paymentStrategyFactory.GetStrategy(purchaseType);
-        var amount = await paymentStrategy.GetAmountAsync(request.ServiceId);
-        var paymentResult = await payPalService.ProcessPaymentAsync(paymentDetails, amount);
+        var service = await paymentStrategy.GetService(request.ServiceId);
+        var paymentResult = await payPalService.ProcessPaymentAsync(paymentDetails, service.Amount);
         if (!paymentResult.IsSuccess) return BadRequest(paymentResult.Error!.Message);
         
-        var payment = await paymentService.AddAsync(paymentResult.Value!.OrderId, amount, request.UserId, request.PaymentType);
+        var payment = await paymentService.AddAsync(
+            paymentResult.Value!.OrderId, 
+            service.Amount, 
+            request.UserId,
+            service.Name);
         if (!payment.IsSuccess) return BadRequest(paymentResult.Error!.Message);
 
         return Ok(paymentResult.Value!);
@@ -48,9 +52,13 @@ public class PaymentController(
         var payment = await paymentService.GetPaymentByOrderIdAsync(orderId);
         if (!payment.IsSuccess) return BadRequest(payment.Error!.Message);
         
-        var modifiedPayment = await paymentService.UpdateStatusAsync(payment.Value!, PaymentStatus.Completed);
+        payment.Value!.PaymentStatus = PaymentStatus.Completed;
+        var modifiedPayment = await paymentService.UpdateAsync(payment.Value!);
         if (!result.IsSuccess) return BadRequest(modifiedPayment.Error!.Message);
         
+        var paymentStrategy = paymentStrategyFactory.GetStrategy(modifiedPayment.Value!.PurchaseType);
+        await paymentStrategy.HandlePostPaymentAsync(modifiedPayment.Value!.PaidServiceId, modifiedPayment.Value!.UserId);
+
         return Ok(orderId);
     } 
     
@@ -59,8 +67,9 @@ public class PaymentController(
     {
         var payment = await paymentService.GetPaymentByOrderIdAsync(orderId);
         if (!payment.IsSuccess) return BadRequest(payment.Error!.Message);
-        
-        var result = await paymentService.UpdateStatusAsync(payment.Value!, PaymentStatus.Voided);
+
+        payment.Value!.PaymentStatus = PaymentStatus.Voided;
+        var result = await paymentService.UpdateAsync(payment.Value!);
         if (!result.IsSuccess) return BadRequest(result.Error!.Message);
         
         return Ok(orderId);

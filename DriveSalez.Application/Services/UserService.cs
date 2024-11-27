@@ -23,7 +23,14 @@ internal class UserService(
         if (user is null) return Result<TUser>.Failure(UserErrors.NotFound);
         return Result<TUser>.Success(user);
     }
-    
+
+    public async Task<Result<TUser>> UpdateBaseUserAsync<TUser>(TUser baseUser) where TUser : BaseUser
+    {
+        unitOfWork.UserRepository.Update(baseUser);
+        await unitOfWork.SaveChangesAsync();
+        return Result<TUser>.Success(baseUser);
+    }
+
     public async Task<Result<ApplicationUser>> FindIdentityUserByEmailAsync(string email)
     {
         var user = await userManager.FindByEmailAsync(email);

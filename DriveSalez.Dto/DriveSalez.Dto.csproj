@@ -7,4 +7,8 @@
         <RootNamespace>DriveSalez.Shared.Dto</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\DriveSalez.Domain\DriveSalez.Domain.csproj" />
+    </ItemGroup>
+
 </Project>

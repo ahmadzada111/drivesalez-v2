@@ -17,4 +17,9 @@ internal class UserRepository(ApplicationDbContext context) : IUserRepository
     {
         return await context.Set<TUser>().FirstOrDefaultAsync(x => x.Id == id);
     }
+
+    public TUser Update<TUser>(TUser user) where TUser : BaseUser
+    {
+        return context.Set<TUser>().Update(user).Entity;
+    }
 }

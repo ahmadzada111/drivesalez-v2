@@ -1,19 +1,29 @@
-using DriveSalez.Application.Contracts.ServiceContracts;
 using DriveSalez.Domain.Enums;
+using DriveSalez.Repository.Contracts.RepositoryContracts;
+using DriveSalez.Shared.Dto.Dto.Services;
 
 namespace DriveSalez.Application.Abstractions.Payment.Strategy;
 
-public class SubscriptionPaymentStrategy(ISubscriptionService subscriptionService) : IPaymentStrategy
+public class SubscriptionPaymentStrategy(IUnitOfWork unitOfWork) : IPaymentStrategy
 {
     public PurchaseType PaymentType => PurchaseType.Subscription;
     
-    public Task<decimal> GetAmountAsync(int serviceId)
+    public async Task<GetServiceDto> GetService(int serviceId)
     {
-        throw new NotImplementedException();
+        var result = await unitOfWork.SubscriptionRepository.GetByIdAsync(serviceId);
+        if (result is not null) return new GetServiceDto(result.Id, result.Name, result.Price);
+        throw new KeyNotFoundException("Service not found");
     }
 
-    public Task HandlePostPaymentAsync(int serviceId, Guid userId)
+    public async Task HandlePostPaymentAsync(int serviceId, Guid userId)
     {
-        throw new NotImplementedException();
+        var service = await unitOfWork.SubscriptionRepository.GetByIdAsync(serviceId);
+        if(service is null) throw new KeyNotFoundException("Service not found");
+
+        var user = await unitOfWork.UserRepository.GetByIdAsync<Domain.IdentityEntities.User>(userId);
+        if(user is null) throw new KeyNotFoundException("User not found");
+        
+        user.Subscription = service;
+        unitOfWork.UserRepository.Update(user);
     }
 }

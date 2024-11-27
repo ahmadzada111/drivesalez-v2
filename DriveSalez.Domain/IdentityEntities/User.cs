@@ -10,6 +10,8 @@ public class User : BaseUser
     public ICollection<UserLimit> UserLimits { get; set; } = [];
     
     public ICollection<Payment> Payments { get; set; } = [];
+
+    public ICollection<OneTimePurchase> OneTimePurchases { get; set; } = [];
     
     public Subscription Subscription { get; set; } = null!;
 

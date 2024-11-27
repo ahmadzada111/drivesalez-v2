@@ -24,9 +24,9 @@ internal class PaymentService(IUnitOfWork unitOfWork) : IPaymentService
         return Result<Payment>.Success(result);
     }
 
-    public async Task<Result<Payment>> UpdateStatusAsync(Payment payment, PaymentStatus status)
+    public async Task<Result<Payment>> UpdateAsync(Payment payment)
     {
-        var result = unitOfWork.PaymentRepository.Update(payment, status);
+        var result = unitOfWork.PaymentRepository.Update(payment);
         await unitOfWork.SaveChangesAsync();
         return Result<Payment>.Success(result);
     }

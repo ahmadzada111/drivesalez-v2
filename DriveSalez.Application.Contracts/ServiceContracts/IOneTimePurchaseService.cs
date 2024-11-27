@@ -1,9 +1,10 @@
 using DriveSalez.Domain.Entities;
+using DriveSalez.Shared.Dto.Dto.Services;
 using DriveSalez.Utilities.Utilities;
 
 namespace DriveSalez.Application.Contracts.ServiceContracts;
 
 public interface IOneTimePurchaseService
 {
-    public Task<Result<OneTimePurchase>> GetByIdAsync(int id);
+    public Task<Result<GetOneTimePurchaseDto>> GetByIdAsync(int id);
 }
