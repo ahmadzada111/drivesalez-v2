@@ -4,6 +4,7 @@ using DriveSalez.Persistence;
 using DriveSalez.Presentation;
 using DriveSalez.WebApi.ExceptionHandler;
 using DriveSalez.WebApi.Extensions;
+using DriveSalez.WebApi.Middleware;
 
 namespace DriveSalez.WebApi;
 
@@ -43,6 +44,7 @@ public class Program
         app.UseHttpsRedirection();
         app.UseCors("DriveSalezCorsPolicy");
         app.UseAuthentication();
+        app.UseMiddleware<CheckUserStatusMiddleware>();
         app.UseAuthorization();
         app.MapControllers();
         app.Run();

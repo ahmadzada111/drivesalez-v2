@@ -1,16 +1,16 @@
 using DriveSalez.Domain.Entities;
 using DriveSalez.Domain.Enums;
-using DriveSalez.Repository.Contracts.RepositoryContracts;
 using DriveSalez.Shared.Dto.Dto.User;
 
-namespace DriveSalez.Application.Abstractions.User;
+namespace DriveSalez.Application.Abstractions.User.Factory;
 
-public class BusinessUserFactory(IUnitOfWork unitOfWork) : IUserFactory<SignUpBusinessAccountRequest>
+public class BusinessUserFactory : IUserFactory<SignUpBusinessAccountRequest>
 {
-    public async Task<Domain.IdentityEntities.User> CreateUser(SignUpBusinessAccountRequest signUpRequest)
+    public Domain.IdentityEntities.User CreateUserObject(SignUpBusinessAccountRequest signUpRequest, Guid identityUserId)
     {
         var user = new Domain.IdentityEntities.User
         {
+            ApplicationUserId = identityUserId,
             CreationDate = DateTimeOffset.UtcNow,
             UserStatus = UserStatus.Inactive,
             BusinessDetails = new BusinessDetails
@@ -21,8 +21,6 @@ public class BusinessUserFactory(IUnitOfWork unitOfWork) : IUserFactory<SignUpBu
             }
         };
         
-        await unitOfWork.UserRepository.AddAsync(user);
-        await unitOfWork.SaveChangesAsync();
         return user;
     }
 }

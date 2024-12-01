@@ -7,6 +7,7 @@ namespace DriveSalez.Application.Contracts.ServiceContracts;
 
 public interface IUserService
 {
+    Task<Result<TUser>> AddBaseUserAsync<TUser>(TUser user) where TUser : BaseUser;
     Task<Result<TUser>> FindBaseUserByIdAsync<TUser>(Guid baseUserId) where TUser : BaseUser;
     Task<Result<TUser>> UpdateBaseUserAsync<TUser>(TUser baseUser) where TUser : BaseUser;
     Task<Result<ApplicationUser>> FindIdentityUserByEmailAsync(string email);

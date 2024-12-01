@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DriveSalez.Application.Abstractions.User;
+namespace DriveSalez.Application.Abstractions.User.Factory;
 
 public class UserFactorySelector(IServiceProvider serviceProvider)
 {

@@ -8,4 +8,5 @@ public interface ISubscriptionService
 {
     Task<Result<Subscription>> GetByIdAsync(int id);
     Task<Result<Subscription>> GetByUserTypeAsync(UserType userType);
+    Task AddSubscriptionToUser(int serviceId, Guid userId);
 }

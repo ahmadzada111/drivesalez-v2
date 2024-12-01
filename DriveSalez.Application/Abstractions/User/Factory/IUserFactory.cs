@@ -1,6 +1,6 @@
-namespace DriveSalez.Application.Abstractions.User;
+namespace DriveSalez.Application.Abstractions.User.Factory;
 
 public interface IUserFactory<TSignUpRequest>
 {
-    Task<Domain.IdentityEntities.User> CreateUser(TSignUpRequest signUpRequest);
+    Domain.IdentityEntities.User CreateUserObject(TSignUpRequest signUpRequest, Guid identityUserId);
 }

@@ -1,4 +1,5 @@
-using DriveSalez.Application.Abstractions.User;
+using DriveSalez.Application.Abstractions.User.Factory;
+using DriveSalez.Application.Abstractions.User.Strategy;
 using DriveSalez.Application.Contracts.ServiceContracts;
 using DriveSalez.Domain.Enums;
 using DriveSalez.Domain.IdentityEntities;
@@ -13,10 +14,16 @@ internal class UserService(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     UserFactorySelector userFactorySelector,
-    IUnitOfWork unitOfWork,
-    ISubscriptionService subscriptionService,
-    IUserLimitService userLimitService) : IUserService
+    UserStrategySelector userStrategySelector,
+    IUnitOfWork unitOfWork) : IUserService
 {
+    public async Task<Result<TUser>> AddBaseUserAsync<TUser>(TUser user) where TUser : BaseUser
+    {
+        var result = await unitOfWork.UserRepository.AddAsync(user);
+        await unitOfWork.SaveChangesAsync();
+        return Result<TUser>.Success(result);
+    }
+    
     public async Task<Result<TUser>> FindBaseUserByIdAsync<TUser>(Guid baseUserId) where TUser : BaseUser
     {
         var user = await unitOfWork.UserRepository.GetByIdAsync<TUser>(baseUserId);
@@ -50,7 +57,6 @@ internal class UserService(
         var user = await userManager.FindByIdAsync(userId.ToString());
         if(user is null) return Result<ApplicationUser>.Failure(UserErrors.NotFound);
         return Result<ApplicationUser>.Success(user);
-
     }
     
     public async Task<Result<string>> GenerateEmailConfirmationTokenAsync(ApplicationUser identityUser)
@@ -81,44 +87,38 @@ internal class UserService(
     
     public async Task<Result<bool>> CreateUserAsync<TSignUpRequest>(TSignUpRequest request, UserType userType) where TSignUpRequest : ISignUpRequest
     {
-        var userFactory = userFactorySelector.GetFactory<TSignUpRequest>();
-        var user = userFactory.CreateUser(request);
-        var identityUser = new ApplicationUser
-        {
-            Email = request.Email,
-            UserName = request.Email,
-            PhoneNumber = request.PhoneNumber,
-            BaseUser = user
-        };
-
-        IdentityResult result = await userManager.CreateAsync(identityUser, request.Password);
-        if (!result.Succeeded)
-        {
-            var message = string.Join(" | ", result.Errors.Select(e => e.Description));
-            return Result<bool>.Failure(new Error("User Creation Failed", message));
-        }
-
-        var service = await subscriptionService.GetByUserTypeAsync(userType);
-        if(!service.IsSuccess) return Result<bool>.Failure(UserErrors.NotFound);
-        await userManager.AddToRoleAsync(identityUser, userType.ToString());
-        await userManager.UpdateAsync(identityUser);
-
         await unitOfWork.BeginTransactionAsync();
         try
         {
-            user.Subscription = service.Value!;
-            unitOfWork.UserRepository.AddAsync(user);
-            await userLimitService.AddUserLimitToUser(user.Id, service.Value!.RegularUploadLimit, LimitType.Regular);
-            await userLimitService.AddUserLimitToUser(user.Id, service.Value!.PremiumUploadLimit, LimitType.Premium);
+            var identityUser = new ApplicationUser
+            {
+                Id = Guid.NewGuid(),
+                Email = request.Email,
+                UserName = request.Email,
+                PhoneNumber = request.PhoneNumber,
+            };
+            var result = await userManager.CreateAsync(identityUser, request.Password);
+            if (!result.Succeeded)
+            {
+                var message = string.Join(" | ", result.Errors.Select(e => e.Description));
+                await unitOfWork.RollbackTransactionAsync();
+                return Result<bool>.Failure(new Error("User Creation Failed", message));
+            }
+            
+            await userManager.AddToRoleAsync(identityUser, userType.ToString());
+            await userManager.UpdateAsync(identityUser);
+            var userFactory = userFactorySelector.GetFactory<TSignUpRequest>();
+            var user = userFactory.CreateUserObject(request, identityUser.Id);
+            var userStrategy = userStrategySelector.GetStrategy<TSignUpRequest>();
+            await userStrategy.CreateUser(user);
             await unitOfWork.CommitTransactionAsync();
+            return Result<bool>.Success(true);
         }
         catch (Exception)
         {
             await unitOfWork.RollbackTransactionAsync();
             throw;
         }
-        
-        return Result<bool>.Success(true);
     }
     
     public async Task<Result<bool>> ResetPasswordAsync(ApplicationUser identityUser, string token, string newPassword)

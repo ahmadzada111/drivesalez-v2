@@ -7,5 +7,5 @@ namespace DriveSalez.Application.Contracts.ServiceContracts;
 
 public interface IUserLimitService
 {
-    Task<Result<UserLimit>> AddUserLimitToUser(Guid userId, int limitValue, LimitType limitType);
+    Task<Result<UserLimit>> AddLimitToUserAsync(Guid userId, int limitValue, LimitType limitType);
 }

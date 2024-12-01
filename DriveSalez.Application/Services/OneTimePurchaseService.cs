@@ -14,4 +14,17 @@ internal class OneTimePurchaseService(IUnitOfWork unitOfWork) : IOneTimePurchase
         if (result is null) return Result<GetOneTimePurchaseRequest>.Failure(new Error(nameof(OneTimePurchase), $"Id {id} is invalid"));
         return Result<GetOneTimePurchaseRequest>.Success((GetOneTimePurchaseRequest)result);
     }
+
+    public async Task AddOneTimePurchaseToUser(int serviceId, Guid userId)
+    {
+        var service = await unitOfWork.OneTimePurchaseRepository.GetByIdAsync(serviceId);
+        if(service is null) throw new KeyNotFoundException("Service not found");
+        
+        var user = await unitOfWork.UserRepository.GetByIdAsync<Domain.IdentityEntities.User>(userId);
+        if(user is null) throw new KeyNotFoundException("User not found");
+        
+        user.OneTimePurchases.Add(service);
+        unitOfWork.UserRepository.Update(user);
+        await unitOfWork.SaveChangesAsync();
+    }
 }

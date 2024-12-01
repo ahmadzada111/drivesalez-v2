@@ -6,7 +6,6 @@ using DriveSalez.Shared.Dto.Dto.Email;
 using DriveSalez.Shared.Dto.Dto.User;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DriveSalez.Presentation.Controllers;
@@ -40,8 +39,7 @@ public class AccountController(
     }
     
     [HttpPost("signup/business")]
-    public async Task<ActionResult> SignUpBusinessAccount([FromBody] SignUpBusinessAccountRequest request,
-        IFormFile profilePhoto, IFormFile backgroundPhoto)
+    public async Task<ActionResult> SignUpBusinessAccount([FromBody] SignUpBusinessAccountRequest request)
     {
         var validator = await signUpBusinessValidator.ValidateAsync(request);
         if (!validator.IsValid)
@@ -65,6 +63,12 @@ public class AccountController(
         var payment = await paymentService.GetPaymentByOrderIdAsync(orderId);
         if (!payment.IsSuccess) return BadRequest();
 
+        if (user.Value!.Id != payment.Value!.UserId
+            || payment.Value!.PurchaseType != PurchaseType.Subscription
+            || payment.Value!.PaymentStatus != PaymentStatus.Completed) return BadRequest();
+        
+        user.Value!.UserStatus = UserStatus.Active;
+        await userService.UpdateBaseUserAsync(user.Value!);
         
         return Ok();
     }
@@ -97,12 +101,13 @@ public class AccountController(
             new { userId = user.Value!.Id, token }, 
             Request.Scheme);
 
-        await emailService.SendEmailAsync(new EmailRequest
+        var emailResult = await emailService.SendEmailAsync(new EmailRequest
         (
             user.Value.Email!,
             "Email Confirmation",
             $"Please confirm your account by clicking this link: {confirmationLink}"
         ));
+        if (!emailResult.IsSuccess) return BadRequest(emailResult.Error);
         
         return Ok("Email confirmation link has been sent.");
     }

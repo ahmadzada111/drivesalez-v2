@@ -8,7 +8,7 @@ namespace DriveSalez.Application.Services;
 
 internal class UserLimitService(IUnitOfWork unitOfWork) : IUserLimitService
 {
-    public async Task<Result<UserLimit>> AddUserLimitToUser(Guid userId, int limitValue, LimitType limitType)
+    public async Task<Result<UserLimit>> AddLimitToUserAsync(Guid userId, int limitValue, LimitType limitType)
     {
         var userLimit = new UserLimit()
         {

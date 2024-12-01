@@ -21,4 +21,17 @@ internal class SubscriptionService(IUnitOfWork unitOfWork) : ISubscriptionServic
         if (result is null) return Result<Subscription>.Failure(new Error("Subscription not found", "Subscription not found"));
         return Result<Subscription>.Success(result);
     }
+
+    public async Task AddSubscriptionToUser(int serviceId, Guid userId)
+    {
+        var service = await unitOfWork.SubscriptionRepository.GetByIdAsync(serviceId);
+        if(service is null) throw new KeyNotFoundException("Service not found");
+        
+        var user = await unitOfWork.UserRepository.GetByIdAsync<Domain.IdentityEntities.User>(userId);
+        if(user is null) throw new KeyNotFoundException("User not found");
+        
+        user.Subscription = service;
+        unitOfWork.UserRepository.Update(user);
+        await unitOfWork.SaveChangesAsync();
+    }
 }
