@@ -1,12 +1,13 @@
 using DriveSalez.Domain.Entities;
 using DriveSalez.Domain.Enums;
+using DriveSalez.Repository.Contracts.RepositoryContracts;
 using DriveSalez.Shared.Dto.Dto.User;
 
 namespace DriveSalez.Application.Abstractions.User;
 
-public class BusinessUserFactory : IUserFactory<SignUpBusinessAccountRequest>
+public class BusinessUserFactory(IUnitOfWork unitOfWork) : IUserFactory<SignUpBusinessAccountRequest>
 {
-    public Domain.IdentityEntities.User CreateUser(SignUpBusinessAccountRequest signUpRequest)
+    public async Task<Domain.IdentityEntities.User> CreateUser(SignUpBusinessAccountRequest signUpRequest)
     {
         var user = new Domain.IdentityEntities.User
         {
@@ -17,10 +18,11 @@ public class BusinessUserFactory : IUserFactory<SignUpBusinessAccountRequest>
                 BusinessName = signUpRequest.BusinessName,
                 Description = signUpRequest.Description,
                 Address = signUpRequest.Address,
-                
             }
         };
         
+        await unitOfWork.UserRepository.AddAsync(user);
+        await unitOfWork.SaveChangesAsync();
         return user;
     }
 }

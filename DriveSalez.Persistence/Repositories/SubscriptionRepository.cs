@@ -10,11 +10,15 @@ internal class SubscriptionRepository(ApplicationDbContext context) : ISubscript
 {
     public async Task<Subscription?> GetByIdAsync(int id)
     {
-        return await context.Subscriptions.FirstOrDefaultAsync(x => x.Id == id);
+        return await context.Subscriptions
+            .Include(x => x.SubscriptionLimits)
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<Subscription?> GetByUserTypeAsync(UserType userType)
     {
-        return await context.Subscriptions.FirstOrDefaultAsync(x => x.UserType == userType);
+        return await context.Subscriptions
+            .Include(x => x.SubscriptionLimits)
+            .FirstOrDefaultAsync(x => x.UserType == userType);
     }
 }

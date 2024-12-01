@@ -17,6 +17,7 @@ public static class DependencyInjection
         services.AddScoped<IUserLimitRepository, UserLimitRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped(typeof(Lazy<>), typeof(LazyResolver<>));
 
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DbConnection")));
@@ -24,3 +25,5 @@ public static class DependencyInjection
         return services;
     }
 }
+
+file class LazyResolver<T>(IServiceProvider provider) : Lazy<T>(provider.GetRequiredService<T>) where T : notnull;
