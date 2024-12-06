@@ -1,7 +1,6 @@
 using Asp.Versioning;
 using DriveSalez.Application.Contracts.ServiceContracts;
 using DriveSalez.Domain.Enums;
-using DriveSalez.Domain.IdentityEntities;
 using DriveSalez.Shared.Dto.Dto.Email;
 using DriveSalez.Shared.Dto.Dto.User;
 using FluentValidation;
@@ -15,11 +14,11 @@ namespace DriveSalez.Presentation.Controllers;
 [Route("api/v{v:apiVersion}/accounts")]
 public class AccountController(
     IUserService userService, 
+    IIdentityService identityService,
     IValidator<SignUpDefaultAccountRequest> signUpDefaultValidator,
     IValidator<SignUpBusinessAccountRequest> signUpBusinessValidator,
     IValidator<ConfirmEmailRequest> emailConfirmValidator,
-    IEmailService emailService,
-    IPaymentService paymentService) : Controller
+    IEmailService emailService) : Controller
 {
     [HttpPost("signup/default"), AllowAnonymous]
     public async Task<ActionResult> SignUpDefaultAccount([FromBody] SignUpDefaultAccountRequest request)
@@ -34,7 +33,7 @@ public class AccountController(
         var result = await userService.CreateUserAsync(request, UserType.Default);
         if (!result.IsSuccess) return BadRequest(result.Error);
         
-        return CreatedAtAction(nameof(SignUpDefaultAccount), "User registered successfully.");
+        return CreatedAtAction(nameof(SignUpDefaultAccount), result.Value);
     }
     
     [HttpPost("signup/business"), AllowAnonymous]
@@ -50,25 +49,14 @@ public class AccountController(
         var result = await userService.CreateUserAsync(request, UserType.Business);
         if (!result.IsSuccess) return BadRequest(result.Error);
         
-        return CreatedAtAction(nameof(SignUpBusinessAccount), "User registered successfully.");
+        return CreatedAtAction(nameof(SignUpBusinessAccount), result.Value);
     }
     
     [HttpPatch("signup/complete"), AllowAnonymous]
     public async Task<ActionResult> CompleteBusinessAccountSignUp([FromBody] Guid pendingUserId, string orderId)
     {
-        var user = await userService.FindBaseUserByIdAsync<User>(pendingUserId);
-        if (!user.IsSuccess) return BadRequest();
-        
-        var payment = await paymentService.GetPaymentByOrderIdAsync(orderId);
-        if (!payment.IsSuccess) return BadRequest();
-
-        if (user.Value!.Id != payment.Value!.UserId
-            || payment.Value!.PurchaseType != PurchaseType.Subscription.ToString()
-            || payment.Value!.PaymentStatus != PaymentStatus.Completed.ToString()) return BadRequest();
-        
-        user.Value!.UserStatus = UserStatus.Active;
-        await userService.UpdateBaseUserAsync(user.Value!);
-        
+        if (string.IsNullOrWhiteSpace(orderId) || pendingUserId == Guid.Empty) return BadRequest();
+        await userService.CompleteBusinessSignInAsync(pendingUserId, orderId);
         return Ok();
     }
     
@@ -87,17 +75,18 @@ public class AccountController(
     [HttpPut("signout")]
     public async Task<ActionResult> SignOutAsync()
     {
-        await userService.SignOutAsync();
+        await identityService.SignOutAsync();
         return NoContent();
     }
 
     [HttpGet("{userId}/email")]
     public async Task<ActionResult> RequestConfirmEmail([FromRoute] Guid userId)
     {
-        var user = await userService.FindIdentityUserByIdAsync(userId);
+        if (userId == Guid.Empty) return BadRequest();
+        var user = await identityService.FindIdentityUserByIdAsync(userId);
         if (!user.IsSuccess) return BadRequest(user.Error);
         
-        var token = await userService.GenerateEmailConfirmationTokenAsync(user.Value!);
+        var token = await identityService.GenerateEmailConfirmationTokenAsync(user.Value!);
         if (!token.IsSuccess) return BadRequest(token.Error);
         
         var confirmationLink = Url.Action(
@@ -120,6 +109,7 @@ public class AccountController(
     [HttpPut("{userId}/email")]
     public async Task<ActionResult> ConfirmEmail([FromRoute] Guid userId, [FromQuery] string token)
     {
+        if (userId == Guid.Empty || string.IsNullOrWhiteSpace(token)) return BadRequest();
         var request = new ConfirmEmailRequest(userId, token);
         var validationResult = await emailConfirmValidator.ValidateAsync(request);
         
@@ -129,10 +119,10 @@ public class AccountController(
             return Problem(errorMessage);
         }
 
-        var user = await userService.FindIdentityUserByIdAsync(userId);
+        var user = await identityService.FindIdentityUserByIdAsync(userId);
         if(!user.IsSuccess) return BadRequest(user.Error);
         
-        var result = await userService.ConfirmEmailAsync(user.Value!, request.Token);
+        var result = await identityService.ConfirmEmailAsync(user.Value!, request.Token);
         if (result.IsSuccess) return Ok("Email confirmed successfully.");
         
         return BadRequest(result.Error);

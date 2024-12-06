@@ -6,16 +6,15 @@ using DriveSalez.Domain.IdentityEntities;
 using DriveSalez.Repository.Contracts.RepositoryContracts;
 using DriveSalez.Shared.Dto.Dto.User;
 using DriveSalez.Utilities.Utilities;
-using Microsoft.AspNetCore.Identity;
 
 namespace DriveSalez.Application.Services;
 
 internal class UserService(
-    UserManager<ApplicationUser> userManager,
-    SignInManager<ApplicationUser> signInManager,
     UserFactorySelector userFactorySelector,
     UserStrategySelector userStrategySelector,
-    IUnitOfWork unitOfWork) : IUserService
+    IUnitOfWork unitOfWork,
+    IIdentityService identityService,
+    IRoleService roleService) : IUserService
 {
     public async Task<Result<TUser>> AddBaseUserAsync<TUser>(TUser user) where TUser : BaseUser
     {
@@ -37,55 +36,8 @@ internal class UserService(
         await unitOfWork.SaveChangesAsync();
         return Result<TUser>.Success(baseUser);
     }
-
-    public async Task<Result<ApplicationUser>> FindIdentityUserByEmailAsync(string email)
-    {
-        var user = await userManager.FindByEmailAsync(email);
-        if (user is null) return Result<ApplicationUser>.Failure(UserErrors.NotFound);
-        return Result<ApplicationUser>.Success(user);
-    }
-
-    public async Task<Result<ApplicationUser>> FindIdentityUserByUserNameAsync(string userName)
-    {
-        var user = await userManager.FindByNameAsync(userName);
-        if(user is null) return Result<ApplicationUser>.Failure(UserErrors.NotFound);
-        return Result<ApplicationUser>.Success(user);
-    }
     
-    public async Task<Result<ApplicationUser>> FindIdentityUserByIdAsync(Guid userId)
-    {
-        var user = await userManager.FindByIdAsync(userId.ToString());
-        if(user is null) return Result<ApplicationUser>.Failure(UserErrors.NotFound);
-        return Result<ApplicationUser>.Success(user);
-    }
-    
-    public async Task<Result<string>> GenerateEmailConfirmationTokenAsync(ApplicationUser identityUser)
-    {
-        return Result<string>.Success(await userManager.GenerateEmailConfirmationTokenAsync(identityUser));
-    }
-
-    public async Task<Result<string>> GeneratePasswordResetTokenAsync(ApplicationUser identityUser)
-    {
-        return Result<string>.Success(await userManager.GeneratePasswordResetTokenAsync(identityUser));
-    }
-
-    public async Task<Result<string>> GenerateChangeEmailTokenAsync(ApplicationUser identityUser, string newEmail)
-    {
-        return Result<string>.Success(await userManager.GenerateChangeEmailTokenAsync(identityUser, newEmail));
-    }
-    
-    public async Task<Result<bool>> ConfirmEmailAsync(ApplicationUser identityUser, string token)
-    {
-        var result = await userManager.ConfirmEmailAsync(identityUser, token);
-        if (!result.Succeeded)
-        {
-            var message = string.Join(" | ", result.Errors);
-            return Result<bool>.Failure(new Error("Failed to confirm email.", message));
-        }
-        return Result<bool>.Success(true);
-    }
-    
-    public async Task<Result<bool>> CreateUserAsync<TSignUpRequest>(TSignUpRequest request, UserType userType) where TSignUpRequest : ISignUpRequest
+    public async Task<Result<Guid>> CreateUserAsync<TSignUpRequest>(TSignUpRequest request, UserType userType) where TSignUpRequest : ISignUpRequest
     {
         await unitOfWork.BeginTransactionAsync();
         try
@@ -97,22 +49,21 @@ internal class UserService(
                 UserName = request.Email,
                 PhoneNumber = request.PhoneNumber,
             };
-            var result = await userManager.CreateAsync(identityUser, request.Password);
-            if (!result.Succeeded)
+            var result = await identityService.CreateUserAsync(identityUser, request.Password);
+            if (!result.IsSuccess)
             {
-                var message = string.Join(" | ", result.Errors.Select(e => e.Description));
                 await unitOfWork.RollbackTransactionAsync();
-                return Result<bool>.Failure(new Error("User Creation Failed", message));
+                return Result<Guid>.Failure(new Error("User Creation Failed", result.Error!.Message));
             }
             
-            await userManager.AddToRoleAsync(identityUser, userType.ToString());
-            await userManager.UpdateAsync(identityUser);
+            await roleService.AddUserToRole(identityUser, userType.ToString());
+            await identityService.UpdateUserAsync(identityUser);
             var userFactory = userFactorySelector.GetFactory<TSignUpRequest>();
             var user = userFactory.CreateUserObject(request, identityUser.Id);
             var userStrategy = userStrategySelector.GetStrategy<TSignUpRequest>();
-            await userStrategy.CreateUser(user);
+            var createdUser = await userStrategy.CreateUser(user);
             await unitOfWork.CommitTransactionAsync();
-            return Result<bool>.Success(true);
+            return Result<Guid>.Success(createdUser.Id);
         }
         catch (Exception)
         {
@@ -121,38 +72,21 @@ internal class UserService(
         }
     }
     
-    public async Task<Result<bool>> ResetPasswordAsync(ApplicationUser identityUser, string token, string newPassword)
+    public async Task<Result<Guid>> CompleteBusinessSignInAsync(Guid pendingUserId, string orderId)
     {
-        var result =  await userManager.ResetPasswordAsync(identityUser, token, newPassword);
-        if (!result.Succeeded)
-        {
-            var message = string.Join(" | ", result.Errors);
-            return Result<bool>.Failure(new Error("Failed to reset password.", message));
-        }
-        return Result<bool>.Success(true);
-    }
-    
-    public async Task<ApplicationUser> ChangeUserRoleAsync(ApplicationUser identityUser, UserType userType)
-    {
-        var roles = await userManager.GetRolesAsync(identityUser);
-        await userManager.RemoveFromRolesAsync(identityUser, roles);
+        var user = await FindBaseUserByIdAsync<User>(pendingUserId);
+        if (!user.IsSuccess) return Result<Guid>.Failure(UserErrors.NotFound);
         
-        await userManager.AddToRoleAsync(identityUser, userType.ToString());
-        await userManager.UpdateAsync(identityUser);
-
-        return identityUser;
+        var payment = await unitOfWork.PaymentRepository.GetPaymentByOrderIdAsync(orderId);
+        if (payment is null) return Result<Guid>.Failure(new Error("Payment Not Found", "Payment Not Found"));
+        
+        if (user.Value!.Id != payment.UserId
+            || payment.PurchaseType != PurchaseType.Subscription
+            || payment.PaymentStatus != PaymentStatus.Completed) return Result<Guid>.Failure(new Error("Payment Not Found", "Payment Not Found"));
+        
+        user.Value!.UserStatus = UserStatus.Active;
+        await UpdateBaseUserAsync(user.Value!);
+        
+        return Result<Guid>.Success(user.Value!.Id);
     }
-    
-    public async Task SignOutAsync()
-    {
-        await signInManager.SignOutAsync();
-    }
-
-    // public async Task<Result<ApplicationUser>> CompleteBusinessSignInAsync(Guid pendingUserId, string orderId)
-    // {
-    //     var user = await FindIdentityUserByIdAsync(pendingUserId);
-    //     if (!user.IsSuccess) return Result<ApplicationUser>.Failure(UserErrors.NotFound);
-    //     
-    //     
-    // }
 }

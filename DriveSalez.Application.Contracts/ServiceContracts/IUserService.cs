@@ -10,17 +10,6 @@ public interface IUserService
     Task<Result<TUser>> AddBaseUserAsync<TUser>(TUser user) where TUser : BaseUser;
     Task<Result<TUser>> FindBaseUserByIdAsync<TUser>(Guid baseUserId) where TUser : BaseUser;
     Task<Result<TUser>> UpdateBaseUserAsync<TUser>(TUser baseUser) where TUser : BaseUser;
-    Task<Result<ApplicationUser>> FindIdentityUserByEmailAsync(string email);
-    Task<Result<ApplicationUser>> FindIdentityUserByUserNameAsync(string userName);
-    Task<Result<ApplicationUser>> FindIdentityUserByIdAsync(Guid userId);
-    Task<Result<string>> GenerateEmailConfirmationTokenAsync(ApplicationUser identityUser);
-    Task<Result<string>> GeneratePasswordResetTokenAsync(ApplicationUser identityUser);
-    Task<Result<string>> GenerateChangeEmailTokenAsync(ApplicationUser identityUser, string newEmail);
-    Task<Result<bool>> ConfirmEmailAsync(ApplicationUser identityUser, string token);
-    Task<Result<bool>> ResetPasswordAsync(ApplicationUser identityUser, string token, string newPassword);
-    Task<Result<bool>> CreateUserAsync<TSignUpRequest>(TSignUpRequest request, UserType userType)
-        where TSignUpRequest : ISignUpRequest;
-    Task<ApplicationUser> ChangeUserRoleAsync(ApplicationUser identityUser, UserType userType);
-    // Task<Result<ApplicationUser>> CompleteBusinessSignInAsync(Guid pendingUserId, string orderId);
-    Task SignOutAsync();
+    Task<Result<Guid>> CreateUserAsync<TSignUpRequest>(TSignUpRequest request, UserType userType) where TSignUpRequest : ISignUpRequest;
+    Task<Result<Guid>> CompleteBusinessSignInAsync(Guid pendingUserId, string orderId);
 }

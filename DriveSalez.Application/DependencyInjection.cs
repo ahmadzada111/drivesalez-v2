@@ -1,8 +1,6 @@
 using System.Reflection;
-using DriveSalez.Application.Abstractions;
 using DriveSalez.Application.Abstractions.Payment.Factory;
 using DriveSalez.Application.Abstractions.Payment.Strategy;
-using DriveSalez.Application.Abstractions.User;
 using DriveSalez.Application.Abstractions.User.Factory;
 using DriveSalez.Application.Abstractions.User.Strategy;
 using DriveSalez.Application.Contracts.ServiceContracts;
@@ -32,6 +30,8 @@ public static class DependencyInjection
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<IOneTimePurchaseService, OneTimePurchaseService>();
         services.AddScoped<IUserLimitService, UserLimitService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IRoleService, RoleService>();
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         return services;
