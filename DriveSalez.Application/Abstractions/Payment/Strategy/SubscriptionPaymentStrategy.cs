@@ -15,8 +15,8 @@ public class SubscriptionPaymentStrategy(ISubscriptionService subscriptionServic
         throw new KeyNotFoundException("Service not found");
     }
 
-    public async Task HandlePostPaymentAsync(int serviceId, Guid userId)
+    public async Task HandlePostPaymentAsync(int serviceId, Guid baseUserId)
     {
-        await subscriptionService.AddSubscriptionToUser(serviceId, userId);
+        await subscriptionService.AddSubscriptionToUser(serviceId, baseUserId);
     }
 }

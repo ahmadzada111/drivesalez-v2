@@ -13,9 +13,7 @@ public class User : BaseUser
 
     public ICollection<OneTimePurchase> OneTimePurchases { get; set; } = [];
     
-    public int? SubscriptionId { get; set; }
-    
-    public Subscription? Subscription { get; set; }
+    public UserSubscription? UserSubscription { get; set; }
 
     public UserStatus UserStatus { get; set; }
     

@@ -13,7 +13,6 @@ namespace DriveSalez.Presentation.Controllers;
 [ApiController]
 [ApiVersion(1)]
 [Route("api/v{v:apiVersion}/accounts")]
-[AllowAnonymous]
 public class AccountController(
     IUserService userService, 
     IValidator<SignUpDefaultAccountRequest> signUpDefaultValidator,
@@ -22,7 +21,7 @@ public class AccountController(
     IEmailService emailService,
     IPaymentService paymentService) : Controller
 {
-    [HttpPost("signup/default")]
+    [HttpPost("signup/default"), AllowAnonymous]
     public async Task<ActionResult> SignUpDefaultAccount([FromBody] SignUpDefaultAccountRequest request)
     {
         var validator = await signUpDefaultValidator.ValidateAsync(request);
@@ -38,7 +37,7 @@ public class AccountController(
         return CreatedAtAction(nameof(SignUpDefaultAccount), "User registered successfully.");
     }
     
-    [HttpPost("signup/business")]
+    [HttpPost("signup/business"), AllowAnonymous]
     public async Task<ActionResult> SignUpBusinessAccount([FromBody] SignUpBusinessAccountRequest request)
     {
         var validator = await signUpBusinessValidator.ValidateAsync(request);
@@ -54,7 +53,7 @@ public class AccountController(
         return CreatedAtAction(nameof(SignUpBusinessAccount), "User registered successfully.");
     }
     
-    [HttpPost("signup/complete")]
+    [HttpPatch("signup/complete"), AllowAnonymous]
     public async Task<ActionResult> CompleteBusinessAccountSignUp([FromBody] Guid pendingUserId, string orderId)
     {
         var user = await userService.FindBaseUserByIdAsync<User>(pendingUserId);
@@ -64,8 +63,8 @@ public class AccountController(
         if (!payment.IsSuccess) return BadRequest();
 
         if (user.Value!.Id != payment.Value!.UserId
-            || payment.Value!.PurchaseType != PurchaseType.Subscription
-            || payment.Value!.PaymentStatus != PaymentStatus.Completed) return BadRequest();
+            || payment.Value!.PurchaseType != PurchaseType.Subscription.ToString()
+            || payment.Value!.PaymentStatus != PaymentStatus.Completed.ToString()) return BadRequest();
         
         user.Value!.UserStatus = UserStatus.Active;
         await userService.UpdateBaseUserAsync(user.Value!);
@@ -79,10 +78,16 @@ public class AccountController(
         throw new NotImplementedException();
     }
 
-    [HttpPut("logout")]
-    public async Task<ActionResult> LogOut()
+    [HttpPost("{userId}/profile")]
+    public Task<ActionResult> Profile()
     {
-        await userService.LogOutAsync();
+        throw new NotImplementedException();
+    }
+    
+    [HttpPut("signout")]
+    public async Task<ActionResult> SignOutAsync()
+    {
+        await userService.SignOutAsync();
         return NoContent();
     }
 

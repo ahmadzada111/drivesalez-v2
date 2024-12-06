@@ -7,5 +7,5 @@ public interface IPaymentStrategy
 {
     PurchaseType PaymentType { get; }
     Task<GetServiceRequest> GetService(int serviceId);
-    Task HandlePostPaymentAsync(int serviceId, Guid userId);
+    Task HandlePostPaymentAsync(int serviceId, Guid baseUserId);
 }

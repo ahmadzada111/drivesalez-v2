@@ -8,11 +8,11 @@ namespace DriveSalez.Application.Services;
 
 internal class OneTimePurchaseService(IUnitOfWork unitOfWork) : IOneTimePurchaseService
 {
-    public async Task<Result<GetOneTimePurchaseRequest>> GetByIdAsync(int id)
+    public async Task<Result<GetOneTimePurchaseResponse>> GetByIdAsync(int id)
     {
         var result = await unitOfWork.OneTimePurchaseRepository.GetByIdAsync(id);
-        if (result is null) return Result<GetOneTimePurchaseRequest>.Failure(new Error(nameof(OneTimePurchase), $"Id {id} is invalid"));
-        return Result<GetOneTimePurchaseRequest>.Success((GetOneTimePurchaseRequest)result);
+        if (result is null) return Result<GetOneTimePurchaseResponse>.Failure(new Error(nameof(OneTimePurchase), $"Id {id} is invalid"));
+        return Result<GetOneTimePurchaseResponse>.Success((GetOneTimePurchaseResponse)result);
     }
 
     public async Task AddOneTimePurchaseToUser(int serviceId, Guid userId)

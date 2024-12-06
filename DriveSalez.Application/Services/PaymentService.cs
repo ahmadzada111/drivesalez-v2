@@ -15,29 +15,47 @@ internal class PaymentService(
 {
     public async Task<Result<string>> ConfirmPaymentAsync(string orderId)
     {
-        var result = await payPalService.CapturePaymentAsync(orderId);
-        if (!result.IsSuccess) return Result<string>.Failure(result.Error!);
+        await unitOfWork.BeginTransactionAsync();
+        try
+        {
+            var result = await payPalService.CapturePaymentAsync(orderId);
+            if (!result.IsSuccess)
+            {
+                await unitOfWork.RollbackTransactionAsync();
+                return Result<string>.Failure(result.Error!);
+            }
         
-        var payment = await GetPaymentByOrderIdAsync(orderId);
-        if (!payment.IsSuccess) return Result<string>.Failure(payment.Error!);
+            var payment = await unitOfWork.PaymentRepository.GetPaymentByOrderIdAsync(orderId);
+            if (payment is null)
+            {
+                await unitOfWork.RollbackTransactionAsync();
+                return Result<string>.Failure(new Error("Payment not found", "Payment not found"));
+            }
         
-        payment.Value!.PaymentStatus = PaymentStatus.Completed;
-        var modifiedPayment = unitOfWork.PaymentRepository.Update(payment.Value!);
-        await unitOfWork.SaveChangesAsync();
+            payment.PaymentStatus = PaymentStatus.Completed;
+            var modifiedPayment = unitOfWork.PaymentRepository.Update(payment);
+            await unitOfWork.SaveChangesAsync();
         
-        var paymentStrategy = paymentStrategyFactory.GetStrategy(modifiedPayment.PurchaseType);
-        await paymentStrategy.HandlePostPaymentAsync(modifiedPayment.PaidServiceId, modifiedPayment.UserId);
+            var paymentStrategy = paymentStrategyFactory.GetStrategy(modifiedPayment.PurchaseType);
+            await paymentStrategy.HandlePostPaymentAsync(modifiedPayment.PaidServiceId, modifiedPayment.UserId);
 
-        return Result<string>.Success(orderId);
+            await unitOfWork.CommitTransactionAsync();
+            return Result<string>.Success(orderId);
+        }
+        catch (Exception)
+        {
+            await unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
     }
 
     public async Task<Result<string>> CancelPaymentAsync(string orderId)
     {
-        var payment = await GetPaymentByOrderIdAsync(orderId);
-        if (!payment.IsSuccess) return Result<string>.Failure(payment.Error!);
+        var payment = await unitOfWork.PaymentRepository.GetPaymentByOrderIdAsync(orderId);
+        if (payment is null) return Result<string>.Failure(new Error("Payment not found", "Payment not found"));
         
-        payment.Value!.PaymentStatus = PaymentStatus.Voided;
-        unitOfWork.PaymentRepository.Update(payment.Value!);
+        payment.PaymentStatus = PaymentStatus.Voided;
+        unitOfWork.PaymentRepository.Update(payment);
         await unitOfWork.SaveChangesAsync();
         
         return Result<string>.Success(orderId);
@@ -54,21 +72,23 @@ internal class PaymentService(
         var payment = new Payment()
         {
             Amount = service.Amount,
-            CreationDate = DateTimeOffset.Now,
+            CreationDate = DateTimeOffset.UtcNow,
             OrderId =  paymentResult.Value!.OrderId,
+            PaidServiceId = service.Id,
             PaymentStatus = PaymentStatus.Created,
             UserId = request.UserId,
             Name = service.Name
         };
 
         await unitOfWork.PaymentRepository.AddAsync(payment);
+        await unitOfWork.SaveChangesAsync();
         return Result<PaymentResponse>.Success(paymentResult.Value);
     }
 
-    public async Task<Result<Payment>> GetPaymentByOrderIdAsync(string orderId)
+    public async Task<Result<GetPaymentResponse>> GetPaymentByOrderIdAsync(string orderId)
     {
         var payment = await unitOfWork.PaymentRepository.GetPaymentByOrderIdAsync(orderId);
-        if (payment is null) return Result<Payment>.Failure(new Error("Payment not found", "Payment not found"));
-        return Result<Payment>.Success(payment);
+        if (payment is null) return Result<GetPaymentResponse>.Failure(new Error("Payment not found", "Payment not found"));
+        return Result<GetPaymentResponse>.Success((GetPaymentResponse)payment);
     }
 }

@@ -15,8 +15,8 @@ public class OneTimePurchasePaymentStrategy(IOneTimePurchaseService oneTimePurch
         throw new KeyNotFoundException("Service not found");
     }
 
-    public async Task HandlePostPaymentAsync(int serviceId, Guid userId)
+    public async Task HandlePostPaymentAsync(int serviceId, Guid baseUserId)
     {
-        await oneTimePurchaseService.AddOneTimePurchaseToUser(serviceId, userId);
+        await oneTimePurchaseService.AddOneTimePurchaseToUser(serviceId, baseUserId);
     }
 }

@@ -16,10 +16,9 @@ public class PayPalService : IPayPalService
     public PayPalService(IOptions<PayPalSettings> settings)
     {
         var payPalSettings = settings.Value;
-        var environment = new SandboxEnvironment(
-            payPalSettings.ClientId,
-            payPalSettings.Secret
-        );
+        PayPalEnvironment environment = payPalSettings.Mode.Equals("Production", StringComparison.OrdinalIgnoreCase)
+            ? new LiveEnvironment(payPalSettings.ClientId, payPalSettings.Secret)
+            : new SandboxEnvironment(payPalSettings.ClientId, payPalSettings.Secret);
         _client = new PayPalHttpClient(environment);
     }
 

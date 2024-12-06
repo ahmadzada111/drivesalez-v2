@@ -23,4 +23,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public virtual DbSet<UserLimit> UserLimits { get; set; }
     
     public virtual DbSet<OneTimePurchase> OneTimePurchases { get; set; }
+    
+    public virtual DbSet<UserSubscription> UserSubscriptions { get; set; }
+    
+    public virtual DbSet<SubscriptionLimit> SubscriptionLimits { get; set; }
 }

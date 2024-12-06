@@ -7,7 +7,7 @@ public interface IUnitOfWork : IAsyncDisposable, IDisposable
     IPaymentRepository PaymentRepository { get; }
     ISubscriptionRepository SubscriptionRepository { get; }
     IUserLimitRepository UserLimitRepository { get; }
-    
+    IUserSubscriptionRepository UserSubscriptionRepository { get; }
     Task BeginTransactionAsync();
     Task CommitTransactionAsync();
     Task RollbackTransactionAsync();

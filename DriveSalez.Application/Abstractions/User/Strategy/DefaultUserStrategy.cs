@@ -14,15 +14,15 @@ public class DefaultUserStrategy(
         var subscription = await subscriptionService.GetByUserTypeAsync(UserType.Default);
         if (!subscription.IsSuccess) throw new KeyNotFoundException("Subscription not found");
 
-        var premiumLimit = subscription.Value!.SubscriptionLimits.FirstOrDefault(x => x.LimitType == LimitType.Premium)
+        var premiumLimit = subscription.Value!.SubscriptionLimits.FirstOrDefault(x => x.LimitType == LimitType.Premium.ToString())
             ?? throw new KeyNotFoundException("Premium limit not found");
-        var regularLimit = subscription.Value!.SubscriptionLimits.FirstOrDefault(x => x.LimitType == LimitType.Regular)
+        var regularLimit = subscription.Value!.SubscriptionLimits.FirstOrDefault(x => x.LimitType == LimitType.Regular.ToString())
             ?? throw new KeyNotFoundException("Regular limit not found");
         
         await userService.AddBaseUserAsync(user);
-        await userLimitService.AddLimitToUserAsync(user.Id,  premiumLimit.LimitValue, premiumLimit.LimitType);
-        await userLimitService.AddLimitToUserAsync(user.Id,  regularLimit.LimitValue, regularLimit.LimitType);
-        
+        await userLimitService.AddLimitToUserAsync(user.Id,  premiumLimit.LimitValue, LimitType.Premium);
+        await userLimitService.AddLimitToUserAsync(user.Id,  regularLimit.LimitValue, LimitType.Regular);
+        await subscriptionService.AddSubscriptionToUser(subscription.Value!.Id, user.Id);
         return user;
     }
 }

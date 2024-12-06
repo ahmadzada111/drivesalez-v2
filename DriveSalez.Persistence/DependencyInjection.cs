@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddScoped<IOneTimePurchaseRepository, OneTimePurchaseRepository>();
         services.AddScoped<IUserLimitRepository, UserLimitRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+        services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(Lazy<>), typeof(LazyResolver<>));
 

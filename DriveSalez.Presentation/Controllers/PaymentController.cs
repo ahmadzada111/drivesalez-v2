@@ -39,24 +39,24 @@ public class PaymentController(
     }
     
     [HttpGet("confirm")]
-    public async Task<IActionResult> ConfirmPayment([FromQuery] string orderId, string payerId)
+    public async Task<IActionResult> ConfirmPayment([FromQuery] string token, string payerId)
     {
-        if (string.IsNullOrWhiteSpace(orderId)) return BadRequest();
-        var paymentStrategy = await paymentService.ConfirmPaymentAsync(orderId);
+        if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(payerId)) return BadRequest();
+        var paymentStrategy = await paymentService.ConfirmPaymentAsync(token);
         if (!paymentStrategy.IsSuccess) return BadRequest(paymentStrategy.Error!.Message);
-        return Ok(orderId);
+        return Ok(token);
     } 
     
     [HttpGet("cancel")]
-    public async Task<IActionResult> CancelPayment([FromQuery] string orderId, string payerId)
+    public async Task<IActionResult> CancelPayment([FromQuery] string token, string payerId)
     {
-        if (string.IsNullOrWhiteSpace(orderId)) return BadRequest();
-        var payment = await paymentService.GetPaymentByOrderIdAsync(orderId);
+        if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(payerId)) return BadRequest();
+        var payment = await paymentService.GetPaymentByOrderIdAsync(token);
         if (!payment.IsSuccess) return BadRequest(payment.Error!.Message);
 
-        var result = await paymentService.CancelPaymentAsync(orderId);
+        var result = await paymentService.CancelPaymentAsync(token);
         if (!result.IsSuccess) return BadRequest(result.Error!.Message);
         
-        return Ok(orderId);
+        return Ok(token);
     } 
 }

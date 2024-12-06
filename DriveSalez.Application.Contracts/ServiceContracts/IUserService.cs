@@ -21,5 +21,6 @@ public interface IUserService
     Task<Result<bool>> CreateUserAsync<TSignUpRequest>(TSignUpRequest request, UserType userType)
         where TSignUpRequest : ISignUpRequest;
     Task<ApplicationUser> ChangeUserRoleAsync(ApplicationUser identityUser, UserType userType);
-    Task LogOutAsync();
+    // Task<Result<ApplicationUser>> CompleteBusinessSignInAsync(Guid pendingUserId, string orderId);
+    Task SignOutAsync();
 }

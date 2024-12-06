@@ -15,16 +15,19 @@ public sealed class UnitOfWork : IUnitOfWork
     private readonly Lazy<IPaymentRepository> _paymentRepository;
     private readonly Lazy<ISubscriptionRepository> _subscriptionRepository;
     private readonly Lazy<IUserLimitRepository> _userLimitRepository;
+    private readonly Lazy<IUserSubscriptionRepository> _userSubscriptionRepository;
     
     public IUserRepository UserRepository => _userRepository.Value;
     public IOneTimePurchaseRepository OneTimePurchaseRepository => _oneTimePurchaseRepository.Value;
     public IPaymentRepository PaymentRepository => _paymentRepository.Value;
     public ISubscriptionRepository SubscriptionRepository => _subscriptionRepository.Value;
     public IUserLimitRepository UserLimitRepository => _userLimitRepository.Value;
+    public IUserSubscriptionRepository UserSubscriptionRepository => _userSubscriptionRepository.Value;
 
     public UnitOfWork(ApplicationDbContext context, Lazy<IUserRepository> userRepository1, 
         Lazy<IOneTimePurchaseRepository> oneTimePurchaseRepository, Lazy<IPaymentRepository> paymentRepository, 
-        Lazy<ISubscriptionRepository> subscriptionRepository, Lazy<IUserLimitRepository> userLimitRepository)
+        Lazy<ISubscriptionRepository> subscriptionRepository, Lazy<IUserLimitRepository> userLimitRepository,
+        Lazy<IUserSubscriptionRepository> userSubscriptionRepository)
     {
         _context = context;
         _userRepository = userRepository1;
@@ -32,6 +35,7 @@ public sealed class UnitOfWork : IUnitOfWork
         _paymentRepository = paymentRepository;
         _subscriptionRepository = subscriptionRepository;
         _userLimitRepository = userLimitRepository;
+        _userSubscriptionRepository = userSubscriptionRepository;
     }
     
     public async Task BeginTransactionAsync()

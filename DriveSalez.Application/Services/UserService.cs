@@ -143,8 +143,16 @@ internal class UserService(
         return identityUser;
     }
     
-    public async Task LogOutAsync()
+    public async Task SignOutAsync()
     {
         await signInManager.SignOutAsync();
     }
+
+    // public async Task<Result<ApplicationUser>> CompleteBusinessSignInAsync(Guid pendingUserId, string orderId)
+    // {
+    //     var user = await FindIdentityUserByIdAsync(pendingUserId);
+    //     if (!user.IsSuccess) return Result<ApplicationUser>.Failure(UserErrors.NotFound);
+    //     
+    //     
+    // }
 }

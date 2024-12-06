@@ -5,6 +5,6 @@ namespace DriveSalez.Application.Contracts.ServiceContracts;
 
 public interface IOneTimePurchaseService
 {
-    Task<Result<GetOneTimePurchaseRequest>> GetByIdAsync(int id);
+    Task<Result<GetOneTimePurchaseResponse>> GetByIdAsync(int id);
     Task AddOneTimePurchaseToUser(int serviceId, Guid userId);
 }
