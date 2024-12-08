@@ -1,4 +1,4 @@
-using DriveSalez.Domain.Entities;
+using DriveSalez.Domain.Aggregates.UserAggregate;
 
 namespace DriveSalez.Domain.RepositoryContracts;
 

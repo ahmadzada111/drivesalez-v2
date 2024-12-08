@@ -21,7 +21,7 @@ internal class JwtService(
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly RefreshTokenSettings _refreshTokenSettings = refreshTokenSettings.Value;
 
-    private async Task<JwtSecurityToken> CreateJwtTokenAsync(ApplicationUser identityUser, Guid baseUserId)
+    private async Task<JwtSecurityToken> CreateJwtTokenAsync(ApplicationUser identityUser, Guid customUserId)
     {
         DateTime expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.Expiration);
         var role = await userManager.GetRolesAsync(identityUser);
@@ -33,7 +33,7 @@ internal class JwtService(
             new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
             new Claim(ClaimTypes.NameIdentifier, identityUser.Id.ToString()),
             new Claim(ClaimTypes.Email, identityUser.Email ?? throw new NullReferenceException("Email is null.")),
-            new Claim("BaseUserId", baseUserId.ToString())
+            new Claim("CustomUserId", customUserId.ToString())
         };
         claims.AddRange(role.Select(roleClaim => new Claim(ClaimTypes.Role, roleClaim)));
         
@@ -55,17 +55,17 @@ internal class JwtService(
         return token;
     }
     
-    public async Task<AuthResponse> GenerateSecurityTokenAsync(ApplicationUser identityUser, Guid baseUserId)
+    public async Task<AuthResponse> GenerateSecurityTokenAsync(ApplicationUser identityUser, Guid customUserId)
     {
         DateTimeOffset expiration = DateTimeOffset.UtcNow.AddMinutes(_jwtSettings.Expiration);
-        JwtSecurityToken token = await CreateJwtTokenAsync(identityUser, baseUserId);
+        JwtSecurityToken token = await CreateJwtTokenAsync(identityUser, customUserId);
         JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
         string response = tokenHandler.WriteToken(token);
         var refreshToken = GenerateRefreshToken();
         var refreshTokenExpiration = DateTimeOffset.UtcNow.AddMinutes(_refreshTokenSettings.Expiration);
 
         return new AuthResponse(
-            identityUser.BaseUser.Id, 
+            customUserId, 
             response, 
             expiration,
             refreshToken,

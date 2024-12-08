@@ -1,8 +1,9 @@
 using DriveSalez.Application.Abstractions.Payment.Factory;
 using DriveSalez.Application.Dto.Payment;
 using DriveSalez.Application.ServiceContracts;
-using DriveSalez.Domain.Entities;
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Aggregates;
+using DriveSalez.Domain.Aggregates.PaymentAggregate;
+using DriveSalez.Domain.Common.Enums;
 using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Utilities.Utilities;
 

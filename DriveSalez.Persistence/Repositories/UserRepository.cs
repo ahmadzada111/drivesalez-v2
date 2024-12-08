@@ -1,4 +1,4 @@
-using DriveSalez.Domain.IdentityEntities;
+using DriveSalez.Domain.Aggregates.UserAggregate;
 using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
@@ -7,19 +7,19 @@ namespace DriveSalez.Persistence.Repositories;
 
 internal class UserRepository(ApplicationDbContext context) : IUserRepository
 {
-    public async Task<TUser> AddAsync<TUser>(TUser user) where TUser : BaseUser
+    public async Task<CustomUser> AddAsync(CustomUser customUser)
     { 
-        var entry = await context.Set<TUser>().AddAsync(user);
+        var entry = await context.CustomUsers.AddAsync(customUser);
         return entry.Entity;
     }
     
-    public async Task<TUser?> GetByIdAsync<TUser>(Guid id) where TUser : BaseUser
+    public async Task<CustomUser?> GetByIdAsync(Guid id)
     {
-        return await context.Set<TUser>().FirstOrDefaultAsync(x => x.Id == id);
+        return await context.CustomUsers.FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public TUser Update<TUser>(TUser user) where TUser : BaseUser
+    public CustomUser Update(CustomUser customUser)
     {
-        return context.Set<TUser>().Update(user).Entity;
+        return context.CustomUsers.Update(customUser).Entity;
     }
 }

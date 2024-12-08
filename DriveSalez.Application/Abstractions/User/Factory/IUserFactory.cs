@@ -1,6 +1,8 @@
+using DriveSalez.Domain.Aggregates.UserAggregate;
+
 namespace DriveSalez.Application.Abstractions.User.Factory;
 
 public interface IUserFactory<TSignUpRequest>
 {
-    Domain.IdentityEntities.User CreateUserObject(TSignUpRequest signUpRequest, Guid identityUserId);
+    CustomUser CreateUserObject(TSignUpRequest signUpRequest, Guid identityUserId);
 }

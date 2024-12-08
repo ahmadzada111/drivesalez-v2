@@ -1,4 +1,5 @@
-using DriveSalez.Domain.Entities;
+using DriveSalez.Domain.Aggregates;
+using DriveSalez.Domain.Aggregates.PaymentAggregate;
 using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;

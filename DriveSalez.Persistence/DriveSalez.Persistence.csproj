@@ -20,10 +20,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Configuration\" />
-    </ItemGroup>
-
-    <ItemGroup>
         <InternalsVisibleTo Include="DriveSalez.Tests.Repositories" />
     </ItemGroup>
 </Project>

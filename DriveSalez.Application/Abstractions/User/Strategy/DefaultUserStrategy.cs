@@ -1,6 +1,7 @@
 using DriveSalez.Application.Dto.User;
 using DriveSalez.Application.ServiceContracts;
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Aggregates.UserAggregate;
+using DriveSalez.Domain.Common.Enums;
 
 namespace DriveSalez.Application.Abstractions.User.Strategy;
 
@@ -9,7 +10,7 @@ public class DefaultUserStrategy(
     IUserService userService,
     IUserLimitService userLimitService) : IUserStrategy<SignUpDefaultAccountRequest>
 {
-    public async Task<Domain.IdentityEntities.User> CreateUser(Domain.IdentityEntities.User user)
+    public async Task<CustomUser> CreateUser(CustomUser customUser)
     {
         var subscription = await subscriptionService.GetByUserTypeAsync(UserType.Default);
         if (!subscription.IsSuccess) throw new KeyNotFoundException("Subscription not found");
@@ -19,10 +20,10 @@ public class DefaultUserStrategy(
         var regularLimit = subscription.Value!.SubscriptionLimits.FirstOrDefault(x => x.LimitType == LimitType.Regular.ToString())
             ?? throw new KeyNotFoundException("Regular limit not found");
         
-        await userService.AddBaseUserAsync(user);
-        await userLimitService.AddLimitToUserAsync(user.Id,  premiumLimit.LimitValue, LimitType.Premium);
-        await userLimitService.AddLimitToUserAsync(user.Id,  regularLimit.LimitValue, LimitType.Regular);
-        await subscriptionService.AddSubscriptionToUser(subscription.Value!.Id, user.Id);
-        return user;
+        await userService.AddCustomUserAsync(customUser);
+        await userLimitService.AddLimitToUserAsync(customUser.Id,  premiumLimit.LimitValue, LimitType.Premium);
+        await userLimitService.AddLimitToUserAsync(customUser.Id,  regularLimit.LimitValue, LimitType.Regular);
+        await subscriptionService.AddSubscriptionToUser(subscription.Value!.Id, customUser.Id);
+        return customUser;
     }
 }

@@ -1,5 +1,5 @@
 using DriveSalez.Application.Dto.Payment;
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Common.Enums;
 using FluentValidation;
 
 namespace DriveSalez.Application.Validators;

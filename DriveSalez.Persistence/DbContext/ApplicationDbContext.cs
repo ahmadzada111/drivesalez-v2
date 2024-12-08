@@ -1,4 +1,6 @@
-using DriveSalez.Domain.Entities;
+using DriveSalez.Domain.Aggregates;
+using DriveSalez.Domain.Aggregates.PaymentAggregate;
+using DriveSalez.Domain.Aggregates.UserAggregate;
 using DriveSalez.Domain.IdentityEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +10,7 @@ namespace DriveSalez.Persistence.DbContext;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>(options)
 {
-    public virtual DbSet<BaseUser> BaseUsers { get; set; }
+    public virtual DbSet<CustomUser> CustomUsers { get; set; }
     
     public virtual DbSet<Image> ImageUrls { get; set; }
     

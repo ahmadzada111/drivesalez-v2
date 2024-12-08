@@ -2,7 +2,7 @@ using Asp.Versioning;
 using DriveSalez.Application.Dto.Email;
 using DriveSalez.Application.Dto.User;
 using DriveSalez.Application.ServiceContracts;
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Common.Enums;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

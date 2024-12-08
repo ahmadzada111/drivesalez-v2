@@ -1,7 +1,6 @@
-using DriveSalez.Domain.Enums;
-using DriveSalez.Domain.IdentityEntities;
+using DriveSalez.Domain.Common.Enums;
 
-namespace DriveSalez.Domain.Entities;
+namespace DriveSalez.Domain.Aggregates.UserAggregate;
 
 public class UserLimit
 {
@@ -9,7 +8,7 @@ public class UserLimit
     
     public Guid UserId { get; set; }
     
-    public User User { get; set; } = null!;
+    public CustomUser CustomUser { get; set; } = null!;
 
     public LimitType LimitType { get; set; }
     

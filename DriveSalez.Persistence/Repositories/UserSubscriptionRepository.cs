@@ -1,4 +1,4 @@
-using DriveSalez.Domain.Entities;
+using DriveSalez.Domain.Aggregates.UserAggregate;
 using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Persistence.DbContext;
 

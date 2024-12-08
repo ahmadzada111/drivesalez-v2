@@ -1,6 +1,5 @@
 using DriveSalez.Application.ServiceContracts;
-using DriveSalez.Domain.Enums;
-using DriveSalez.Domain.IdentityEntities;
+using DriveSalez.Domain.Common.Enums;
 
 namespace DriveSalez.WebApi.Middleware;
 
@@ -17,15 +16,15 @@ public class CheckUserStatusMiddleware(RequestDelegate next, IServiceProvider se
         {
             var token = authorizationHeader.Substring("Bearer ".Length).Trim();
             var credentials = jwtService.GetPrincipalFromJwtToken(token);
-            var baseUserId = credentials.Claims.FirstOrDefault(x => x.Type == "BaseUserId");
+            var customUserId = credentials.Claims.FirstOrDefault(x => x.Type == "CustomUserId");
 
-            if (baseUserId == null)
+            if (customUserId == null)
             {
                 context.Response.StatusCode = 401;
                 return;
             }
 
-            var user = await userService.FindBaseUserByIdAsync<User>(Guid.Parse(baseUserId.Value));
+            var user = await userService.FindCustomUserByIdAsync(Guid.Parse(customUserId.Value));
             if (!user.IsSuccess)
             {
                 context.Response.StatusCode = 401;

@@ -11,7 +11,7 @@ public record GetPaymentResponse(
     int ServiceId,
     DateTimeOffset CreationDate)
 {
-    public static explicit operator GetPaymentResponse(Domain.Entities.Payment payment)
+    public static explicit operator GetPaymentResponse(Domain.Aggregates.PaymentAggregate.Payment payment)
     {
         return new GetPaymentResponse(
             payment.Id,

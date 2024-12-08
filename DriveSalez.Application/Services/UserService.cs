@@ -2,7 +2,8 @@ using DriveSalez.Application.Abstractions.User.Factory;
 using DriveSalez.Application.Abstractions.User.Strategy;
 using DriveSalez.Application.Dto.User;
 using DriveSalez.Application.ServiceContracts;
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Aggregates.UserAggregate;
+using DriveSalez.Domain.Common.Enums;
 using DriveSalez.Domain.IdentityEntities;
 using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Utilities.Utilities;
@@ -16,25 +17,25 @@ internal class UserService(
     IIdentityService identityService,
     IRoleService roleService) : IUserService
 {
-    public async Task<Result<TUser>> AddBaseUserAsync<TUser>(TUser user) where TUser : BaseUser
+    public async Task<Result<CustomUser>> AddCustomUserAsync(CustomUser customUser)
     {
-        var result = await unitOfWork.UserRepository.AddAsync(user);
+        var result = await unitOfWork.UserRepository.AddAsync(customUser);
         await unitOfWork.SaveChangesAsync();
-        return Result<TUser>.Success(result);
+        return Result<CustomUser>.Success(result);
     }
     
-    public async Task<Result<TUser>> FindBaseUserByIdAsync<TUser>(Guid baseUserId) where TUser : BaseUser
+    public async Task<Result<CustomUser>> FindCustomUserByIdAsync(Guid customUserId)
     {
-        var user = await unitOfWork.UserRepository.GetByIdAsync<TUser>(baseUserId);
-        if (user is null) return Result<TUser>.Failure(UserErrors.NotFound);
-        return Result<TUser>.Success(user);
+        var user = await unitOfWork.UserRepository.GetByIdAsync(customUserId);
+        if (user is null) return Result<CustomUser>.Failure(UserErrors.NotFound);
+        return Result<CustomUser>.Success(user);
     }
 
-    public async Task<Result<TUser>> UpdateBaseUserAsync<TUser>(TUser baseUser) where TUser : BaseUser
+    public async Task<Result<CustomUser>> UpdateCustomUserAsync(CustomUser customCustomUser)
     {
-        unitOfWork.UserRepository.Update(baseUser);
+        unitOfWork.UserRepository.Update(customCustomUser);
         await unitOfWork.SaveChangesAsync();
-        return Result<TUser>.Success(baseUser);
+        return Result<CustomUser>.Success(customCustomUser);
     }
     
     public async Task<Result<Guid>> CreateUserAsync<TSignUpRequest>(TSignUpRequest request, UserType userType) where TSignUpRequest : ISignUpRequest
@@ -74,14 +75,14 @@ internal class UserService(
     
     public async Task<Result<Guid>> CompleteBusinessSignUpAsync(Guid pendingUserId, string orderId)
     {
-        var user = await FindBaseUserByIdAsync<User>(pendingUserId);
+        var user = await FindCustomUserByIdAsync(pendingUserId);
         if (!user.IsSuccess) return Result<Guid>.Failure(UserErrors.NotFound);
         
         var payment = await unitOfWork.PaymentRepository.GetPaymentByOrderIdAsync(orderId);
         if (payment is null) return Result<Guid>.Failure(PaymentErrors.NotFound);
         
         user.Value!.ActivateUserAfterPayment(payment);
-        await UpdateBaseUserAsync(user.Value!);
+        await UpdateCustomUserAsync(user.Value!);
         
         return Result<Guid>.Success(user.Value!.Id);
     }

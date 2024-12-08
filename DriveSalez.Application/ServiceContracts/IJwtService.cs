@@ -6,6 +6,6 @@ namespace DriveSalez.Application.ServiceContracts;
 
 public interface IJwtService
 {
-    Task<AuthResponse> GenerateSecurityTokenAsync(ApplicationUser identityUser, Guid baseUserId);
+    Task<AuthResponse> GenerateSecurityTokenAsync(ApplicationUser identityUser, Guid customUserId);
     ClaimsPrincipal GetPrincipalFromJwtToken(string token);
 }

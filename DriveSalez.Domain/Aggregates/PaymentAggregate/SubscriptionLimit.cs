@@ -1,6 +1,6 @@
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Common.Enums;
 
-namespace DriveSalez.Domain.Entities;
+namespace DriveSalez.Domain.Aggregates.PaymentAggregate;
 
 public class SubscriptionLimit
 {

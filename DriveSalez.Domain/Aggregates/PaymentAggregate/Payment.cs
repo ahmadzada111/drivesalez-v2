@@ -1,8 +1,8 @@
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Aggregates.UserAggregate;
+using DriveSalez.Domain.Common.Enums;
 using DriveSalez.Domain.Exceptions;
-using DriveSalez.Domain.IdentityEntities;
 
-namespace DriveSalez.Domain.Entities;
+namespace DriveSalez.Domain.Aggregates.PaymentAggregate;
 
 public class Payment
 {
@@ -10,7 +10,7 @@ public class Payment
     
     public Guid UserId { get; set; }
     
-    public User User { get; set; } = null!;
+    public CustomUser CustomUser { get; set; } = null!;
 
     public required string OrderId { get; set; }
     

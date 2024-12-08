@@ -1,6 +1,6 @@
 using DriveSalez.Application.ServiceContracts;
-using DriveSalez.Domain.Entities;
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Aggregates.UserAggregate;
+using DriveSalez.Domain.Common.Enums;
 using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Utilities.Utilities;
 

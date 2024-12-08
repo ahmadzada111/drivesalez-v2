@@ -1,6 +1,7 @@
 using DriveSalez.Application.Dto.Services;
 using DriveSalez.Application.ServiceContracts;
-using DriveSalez.Domain.Entities;
+using DriveSalez.Domain.Aggregates;
+using DriveSalez.Domain.Aggregates.PaymentAggregate;
 using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Utilities.Utilities;
 
@@ -20,10 +21,10 @@ internal class OneTimePurchaseService(IUnitOfWork unitOfWork) : IOneTimePurchase
         var service = await unitOfWork.OneTimePurchaseRepository.GetByIdAsync(serviceId);
         if(service is null) throw new KeyNotFoundException("Service not found");
         
-        var user = await unitOfWork.UserRepository.GetByIdAsync<Domain.IdentityEntities.User>(userId);
+        var user = await unitOfWork.UserRepository.GetByIdAsync(userId);
         if(user is null) throw new KeyNotFoundException("User not found");
         
-        user.OneTimePurchases.Add(service);
+        user.AddOneTimePurchase(service.LimitType, service.LimitValue, service.Name, service.Price);
         unitOfWork.UserRepository.Update(user);
         await unitOfWork.SaveChangesAsync();
     }

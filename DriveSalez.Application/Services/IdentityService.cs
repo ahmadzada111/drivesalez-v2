@@ -1,5 +1,4 @@
 using DriveSalez.Application.ServiceContracts;
-using DriveSalez.Domain.Enums;
 using DriveSalez.Domain.IdentityEntities;
 using DriveSalez.Utilities.Utilities;
 using Microsoft.AspNetCore.Identity;

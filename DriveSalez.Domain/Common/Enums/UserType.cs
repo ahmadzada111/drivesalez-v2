@@ -1,4 +1,4 @@
-namespace DriveSalez.Domain.Enums;
+namespace DriveSalez.Domain.Common.Enums;
 
 public enum UserType
 {

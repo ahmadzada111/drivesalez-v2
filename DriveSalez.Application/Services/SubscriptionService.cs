@@ -1,7 +1,7 @@
 using DriveSalez.Application.Dto.Services;
 using DriveSalez.Application.ServiceContracts;
-using DriveSalez.Domain.Entities;
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Aggregates.UserAggregate;
+using DriveSalez.Domain.Common.Enums;
 using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Utilities.Utilities;
 
@@ -28,12 +28,12 @@ internal class SubscriptionService(IUnitOfWork unitOfWork) : ISubscriptionServic
         var service = await unitOfWork.SubscriptionRepository.GetByIdAsync(serviceId);
         if(service is null) throw new KeyNotFoundException("Service not found");
         
-        var user = await unitOfWork.UserRepository.GetByIdAsync<Domain.IdentityEntities.User>(baseUserId);
+        var user = await unitOfWork.UserRepository.GetByIdAsync(baseUserId);
         if(user is null) throw new KeyNotFoundException("User not found");
 
         var userSubscription = new UserSubscription()
         {
-            UserId = user.Id,
+            CustomUserId = user.Id,
             SubscriptionId = service.Id,
             ExpirationDate = DateTimeOffset.UtcNow.AddDays(service.ValidForDays)
         };

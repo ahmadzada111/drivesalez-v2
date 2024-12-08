@@ -1,5 +1,5 @@
 using DriveSalez.Application.Abstractions.Payment.Strategy;
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Common.Enums;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DriveSalez.Application.Abstractions.Payment.Factory;

@@ -1,4 +1,4 @@
-namespace DriveSalez.Domain.Entities;
+namespace DriveSalez.Domain.Aggregates.UserAggregate;
 
 public class Announcement
 {

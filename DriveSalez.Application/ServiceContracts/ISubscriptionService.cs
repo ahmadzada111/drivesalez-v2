@@ -1,5 +1,5 @@
 using DriveSalez.Application.Dto.Services;
-using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.Common.Enums;
 using DriveSalez.Utilities.Utilities;
 
 namespace DriveSalez.Application.ServiceContracts;

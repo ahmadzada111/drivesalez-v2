@@ -1,15 +1,15 @@
-using DriveSalez.Domain.IdentityEntities;
+using DriveSalez.Domain.Aggregates.PaymentAggregate;
 
-namespace DriveSalez.Domain.Entities;
+namespace DriveSalez.Domain.Aggregates.UserAggregate;
 
 public class UserSubscription
 {
     public int Id { get; set; }
     
-    public Guid UserId { get; set; }
+    public Guid CustomUserId { get; set; }
     
-    public User User { get; set; } = null!;
-
+    public CustomUser CustomUser { get; set; } = null!;
+    
     public int SubscriptionId { get; set; }
     
     public Subscription Subscription { get; set; } = null!;
