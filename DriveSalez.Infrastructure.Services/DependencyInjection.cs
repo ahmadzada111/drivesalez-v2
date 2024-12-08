@@ -1,4 +1,4 @@
-using DriveSalez.Application.Contracts.ServiceContracts;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Infrastructure.Services.Services;
 using DriveSalez.Utilities.Settings;
 using Microsoft.Extensions.Configuration;

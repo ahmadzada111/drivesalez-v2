@@ -1,7 +1,7 @@
 using DriveSalez.Domain.Entities;
 using DriveSalez.Domain.Enums;
+using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Persistence.DbContext;
-using DriveSalez.Repository.Contracts.RepositoryContracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace DriveSalez.Persistence.Repositories;

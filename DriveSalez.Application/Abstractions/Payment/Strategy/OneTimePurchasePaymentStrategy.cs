@@ -1,6 +1,6 @@
-using DriveSalez.Application.Contracts.ServiceContracts;
+using DriveSalez.Application.Dto.Services;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Domain.Enums;
-using DriveSalez.Shared.Dto.Dto.Services;
 
 namespace DriveSalez.Application.Abstractions.Payment.Strategy;
 

@@ -28,4 +28,8 @@
         <Using Include="Xunit"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\DriveSalez.Persistence\DriveSalez.Persistence.csproj" />
+    </ItemGroup>
+
 </Project>

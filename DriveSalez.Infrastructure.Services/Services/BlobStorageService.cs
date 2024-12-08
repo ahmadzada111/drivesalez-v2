@@ -1,4 +1,4 @@
-using DriveSalez.Application.Contracts.ServiceContracts;
+using DriveSalez.Application.ServiceContracts;
 
 namespace DriveSalez.Infrastructure.Services.Services;
 

@@ -3,9 +3,9 @@ using DriveSalez.Application.Abstractions.Payment.Factory;
 using DriveSalez.Application.Abstractions.Payment.Strategy;
 using DriveSalez.Application.Abstractions.User.Factory;
 using DriveSalez.Application.Abstractions.User.Strategy;
-using DriveSalez.Application.Contracts.ServiceContracts;
+using DriveSalez.Application.Dto.User;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Application.Services;
-using DriveSalez.Shared.Dto.Dto.User;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 

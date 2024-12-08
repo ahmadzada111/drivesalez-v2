@@ -1,6 +1,6 @@
+using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Persistence.DbContext;
 using DriveSalez.Persistence.Repositories;
-using DriveSalez.Repository.Contracts.RepositoryContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

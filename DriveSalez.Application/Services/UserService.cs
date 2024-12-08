@@ -1,10 +1,10 @@
 using DriveSalez.Application.Abstractions.User.Factory;
 using DriveSalez.Application.Abstractions.User.Strategy;
-using DriveSalez.Application.Contracts.ServiceContracts;
+using DriveSalez.Application.Dto.User;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Domain.Enums;
 using DriveSalez.Domain.IdentityEntities;
-using DriveSalez.Repository.Contracts.RepositoryContracts;
-using DriveSalez.Shared.Dto.Dto.User;
+using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Utilities.Utilities;
 
 namespace DriveSalez.Application.Services;
@@ -53,7 +53,7 @@ internal class UserService(
             if (!result.IsSuccess)
             {
                 await unitOfWork.RollbackTransactionAsync();
-                return Result<Guid>.Failure(new Error("User Creation Failed", result.Error!.Message));
+                return Result<Guid>.Failure(UserErrors.UserCreationFailed(result.Error!.Message));
             }
             
             await roleService.AddUserToRole(identityUser, userType.ToString());
@@ -72,19 +72,15 @@ internal class UserService(
         }
     }
     
-    public async Task<Result<Guid>> CompleteBusinessSignInAsync(Guid pendingUserId, string orderId)
+    public async Task<Result<Guid>> CompleteBusinessSignUpAsync(Guid pendingUserId, string orderId)
     {
         var user = await FindBaseUserByIdAsync<User>(pendingUserId);
         if (!user.IsSuccess) return Result<Guid>.Failure(UserErrors.NotFound);
         
         var payment = await unitOfWork.PaymentRepository.GetPaymentByOrderIdAsync(orderId);
-        if (payment is null) return Result<Guid>.Failure(new Error("Payment Not Found", "Payment Not Found"));
+        if (payment is null) return Result<Guid>.Failure(PaymentErrors.NotFound);
         
-        if (user.Value!.Id != payment.UserId
-            || payment.PurchaseType != PurchaseType.Subscription
-            || payment.PaymentStatus != PaymentStatus.Completed) return Result<Guid>.Failure(new Error("Payment Not Found", "Payment Not Found"));
-        
-        user.Value!.UserStatus = UserStatus.Active;
+        user.Value!.ActivateUserAfterPayment(payment);
         await UpdateBaseUserAsync(user.Value!);
         
         return Result<Guid>.Success(user.Value!.Id);

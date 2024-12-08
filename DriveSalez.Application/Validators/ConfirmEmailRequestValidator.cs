@@ -1,4 +1,4 @@
-using DriveSalez.Shared.Dto.Dto.User;
+using DriveSalez.Application.Dto.User;
 using FluentValidation;
 
 namespace DriveSalez.Application.Validators;

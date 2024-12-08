@@ -1,5 +1,5 @@
+using DriveSalez.Application.Dto.User;
 using DriveSalez.Domain.Enums;
-using DriveSalez.Shared.Dto.Dto.User;
 
 namespace DriveSalez.Application.Abstractions.User.Factory;
 

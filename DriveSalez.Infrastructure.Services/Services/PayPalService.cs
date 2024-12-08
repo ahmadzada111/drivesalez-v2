@@ -1,6 +1,6 @@
 using System.Globalization;
-using DriveSalez.Application.Contracts.ServiceContracts;
-using DriveSalez.Shared.Dto.Dto.Payment;
+using DriveSalez.Application.Dto.Payment;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Utilities.Settings;
 using DriveSalez.Utilities.Utilities;
 using Microsoft.Extensions.Options;

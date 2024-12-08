@@ -1,6 +1,6 @@
 using DriveSalez.Domain.Entities;
+using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Persistence.DbContext;
-using DriveSalez.Repository.Contracts.RepositoryContracts;
 
 namespace DriveSalez.Persistence.Repositories;
 

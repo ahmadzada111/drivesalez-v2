@@ -1,5 +1,5 @@
-using DriveSalez.Application.Contracts.ServiceContracts;
-using DriveSalez.Shared.Dto.Dto.User;
+using DriveSalez.Application.Dto.User;
+using DriveSalez.Application.ServiceContracts;
 
 namespace DriveSalez.Application.Abstractions.User.Strategy;
 

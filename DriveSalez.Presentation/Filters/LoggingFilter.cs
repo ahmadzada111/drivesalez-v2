@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 
+namespace DriveSalez.Presentation.Filters;
+
 public class LoggingFilter : IActionFilter
 {
     private readonly ILogger<LoggingFilter> _logger;

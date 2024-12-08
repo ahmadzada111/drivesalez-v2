@@ -1,5 +1,5 @@
-﻿using DriveSalez.Application.Contracts.ServiceContracts;
-using DriveSalez.Shared.Dto.Dto.Email;
+﻿using DriveSalez.Application.Dto.Email;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Utilities.Utilities;
 using FluentEmail.Core;
 

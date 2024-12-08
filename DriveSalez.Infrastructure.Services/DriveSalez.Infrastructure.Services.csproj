@@ -16,8 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DriveSalez.Application.Contracts\DriveSalez.Application.Contracts.csproj" />
-      <ProjectReference Include="..\DriveSalez.Dto\DriveSalez.Dto.csproj" />
+      <ProjectReference Include="..\DriveSalez.Application\DriveSalez.Application.csproj" />
     </ItemGroup>
     
 </Project>

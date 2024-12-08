@@ -1,7 +1,6 @@
 using Asp.Versioning;
-using DriveSalez.Application.Contracts.ServiceContracts;
-using DriveSalez.Shared.Dto.Dto.Payment;
-using DriveSalez.Utilities.Utilities;
+using DriveSalez.Application.Dto.Payment;
+using DriveSalez.Application.ServiceContracts;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

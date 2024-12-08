@@ -1,7 +1,7 @@
-using DriveSalez.Application.Contracts.ServiceContracts;
+using DriveSalez.Application.Dto.Services;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Domain.Entities;
-using DriveSalez.Repository.Contracts.RepositoryContracts;
-using DriveSalez.Shared.Dto.Dto.Services;
+using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Utilities.Utilities;
 
 namespace DriveSalez.Application.Services;

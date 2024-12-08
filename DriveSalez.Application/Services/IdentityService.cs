@@ -1,4 +1,4 @@
-using DriveSalez.Application.Contracts.ServiceContracts;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Domain.Enums;
 using DriveSalez.Domain.IdentityEntities;
 using DriveSalez.Utilities.Utilities;
@@ -15,7 +15,7 @@ internal class IdentityService(
         var result = await userManager.CreateAsync(user, password);
         if(result.Succeeded) return Result<IdentityResult>.Success(result);
         var errors = string.Join(" | ", result.Errors.Select(e => e.Description));
-        return Result<IdentityResult>.Failure(new Error("User creation fail", errors));
+        return Result<IdentityResult>.Failure(UserErrors.UserCreationFailed(errors));
     }
 
     public async Task<Result<IdentityResult>> UpdateUserAsync(ApplicationUser user)
@@ -23,7 +23,7 @@ internal class IdentityService(
         var result = await userManager.UpdateAsync(user);
         if(result.Succeeded) return Result<IdentityResult>.Success(result);
         var errors = string.Join(" | ", result.Errors.Select(e => e.Description));
-        return Result<IdentityResult>.Failure(new Error("User update fail", errors));
+        return Result<IdentityResult>.Failure(UserErrors.UserUpdateFailed(errors));
     }
 
     public async Task<Result<ApplicationUser>> FindIdentityUserByEmailAsync(string email)
@@ -67,8 +67,8 @@ internal class IdentityService(
         var result = await userManager.ConfirmEmailAsync(identityUser, token);
         if (!result.Succeeded)
         {
-            var message = string.Join(" | ", result.Errors);
-            return Result<bool>.Failure(new Error("Failed to confirm email.", message));
+            var errors = string.Join(" | ", result.Errors);
+            return Result<bool>.Failure(UserErrors.UserCreationFailed(errors));
         }
         return Result<bool>.Success(true);
     }
@@ -78,8 +78,8 @@ internal class IdentityService(
         var result =  await userManager.ResetPasswordAsync(identityUser, token, newPassword);
         if (!result.Succeeded)
         {
-            var message = string.Join(" | ", result.Errors);
-            return Result<bool>.Failure(new Error("Failed to reset password.", message));
+            var errors = string.Join(" | ", result.Errors);
+            return Result<bool>.Failure(UserErrors.PasswordResetFailed(errors));
         }
         return Result<bool>.Success(true);
     }

@@ -1,9 +1,9 @@
 using DriveSalez.Application.Abstractions.Payment.Factory;
-using DriveSalez.Application.Contracts.ServiceContracts;
+using DriveSalez.Application.Dto.Payment;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Domain.Entities;
 using DriveSalez.Domain.Enums;
-using DriveSalez.Repository.Contracts.RepositoryContracts;
-using DriveSalez.Shared.Dto.Dto.Payment;
+using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Utilities.Utilities;
 
 namespace DriveSalez.Application.Services;
@@ -29,10 +29,10 @@ internal class PaymentService(
             if (payment is null)
             {
                 await unitOfWork.RollbackTransactionAsync();
-                return Result<string>.Failure(new Error("Payment not found", "Payment not found"));
+                return Result<string>.Failure(PaymentErrors.NotFound);
             }
-        
-            payment.PaymentStatus = PaymentStatus.Completed;
+            
+            payment.MarkAsCompleted();
             var modifiedPayment = unitOfWork.PaymentRepository.Update(payment);
             await unitOfWork.SaveChangesAsync();
         
@@ -52,9 +52,9 @@ internal class PaymentService(
     public async Task<Result<string>> CancelPaymentAsync(string orderId)
     {
         var payment = await unitOfWork.PaymentRepository.GetPaymentByOrderIdAsync(orderId);
-        if (payment is null) return Result<string>.Failure(new Error("Payment not found", "Payment not found"));
+        if (payment is null) return Result<string>.Failure(PaymentErrors.NotFound);
         
-        payment.PaymentStatus = PaymentStatus.Voided;
+        payment.MarkAsVoided();
         unitOfWork.PaymentRepository.Update(payment);
         await unitOfWork.SaveChangesAsync();
         
@@ -88,7 +88,7 @@ internal class PaymentService(
     public async Task<Result<GetPaymentResponse>> GetPaymentByOrderIdAsync(string orderId)
     {
         var payment = await unitOfWork.PaymentRepository.GetPaymentByOrderIdAsync(orderId);
-        if (payment is null) return Result<GetPaymentResponse>.Failure(new Error("Payment not found", "Payment not found"));
+        if (payment is null) return Result<GetPaymentResponse>.Failure(PaymentErrors.NotFound);
         return Result<GetPaymentResponse>.Success((GetPaymentResponse)payment);
     }
 }

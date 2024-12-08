@@ -1,4 +1,4 @@
-using DriveSalez.Application.Contracts.ServiceContracts;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Domain.Enums;
 using DriveSalez.Domain.IdentityEntities;
 

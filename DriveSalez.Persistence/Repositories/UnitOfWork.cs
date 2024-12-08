@@ -1,5 +1,5 @@
+using DriveSalez.Domain.RepositoryContracts;
 using DriveSalez.Persistence.DbContext;
-using DriveSalez.Repository.Contracts.RepositoryContracts;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DriveSalez.Persistence.Repositories;

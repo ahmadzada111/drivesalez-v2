@@ -1,8 +1,8 @@
 using Asp.Versioning;
-using DriveSalez.Application.Contracts.ServiceContracts;
+using DriveSalez.Application.Dto.Email;
+using DriveSalez.Application.Dto.User;
+using DriveSalez.Application.ServiceContracts;
 using DriveSalez.Domain.Enums;
-using DriveSalez.Shared.Dto.Dto.Email;
-using DriveSalez.Shared.Dto.Dto.User;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +56,7 @@ public class AccountController(
     public async Task<ActionResult> CompleteBusinessAccountSignUp([FromBody] Guid pendingUserId, string orderId)
     {
         if (string.IsNullOrWhiteSpace(orderId) || pendingUserId == Guid.Empty) return BadRequest();
-        await userService.CompleteBusinessSignInAsync(pendingUserId, orderId);
+        await userService.CompleteBusinessSignUpAsync(pendingUserId, orderId);
         return Ok();
     }
     

@@ -17,11 +17,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DriveSalez.Domain\DriveSalez.Domain.csproj" />
-      <ProjectReference Include="..\DriveSalez.Repository.Contracts\DriveSalez.Repository.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Configuration\" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="DriveSalez.Tests.Repositories" />
+    </ItemGroup>
 </Project>
